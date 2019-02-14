@@ -1,5 +1,4 @@
 
-
 using uint8_t = System.Byte;
 using uint16_t = System.UInt16;
 using uint32_t = System.UInt32;
@@ -20,30 +19,15 @@ using OpenTK;
 public partial class uavcan {
 
 
-
-
 public const int UAVCAN_EQUIPMENT_AIR_DATA_INDICATEDAIRSPEED_MAX_PACK_SIZE = 4;
 public const ulong UAVCAN_EQUIPMENT_AIR_DATA_INDICATEDAIRSPEED_DT_SIG = 0xA1892D72AB8945F;
-
 public const int UAVCAN_EQUIPMENT_AIR_DATA_INDICATEDAIRSPEED_DT_ID = 1021;
 
 
 
-
-
-
 public class uavcan_equipment_air_data_IndicatedAirspeed: IUAVCANSerialize {
-
-
-
     public Half indicated_airspeed = new Half();
-
-
-
     public Half indicated_airspeed_variance = new Half();
-
-
-
 
 public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx) 
 {

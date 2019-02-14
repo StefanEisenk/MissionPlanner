@@ -45,7 +45,7 @@ namespace MissionPlanner.Utilities
                 longitude_deg_1e8 = 7,
                 num_leap_seconds = 17,
                 pdop = new Half(8),
-                sats_used = 10, ned_velocity = new []{new Half(1), new Half(2), new Half(3)   }, status = 99
+                sats_used = 10, ned_velocity = new []{new Half(1), new Half(2), new Half(3)   }, status = 3
             };
 
             testconversion((byte)3, 3, false);
@@ -80,7 +80,7 @@ namespace MissionPlanner.Utilities
 
             }
 
-            var lines = File.ReadAllLines(@"C:\Users\hog\OneDrive\canlog.can");
+            var lines = File.ReadAllLines(@"C:\Users\michael\OneDrive\canlog.can");
             var id_len = 0;
 
             // need sourcenode, msgid, transfer id

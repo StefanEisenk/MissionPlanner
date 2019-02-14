@@ -1,5 +1,4 @@
 
-
 using uint8_t = System.Byte;
 using uint16_t = System.UInt16;
 using uint32_t = System.UInt32;
@@ -20,40 +19,17 @@ using OpenTK;
 public partial class uavcan {
 
 
-
-
 public const int UAVCAN_EQUIPMENT_ICE_RECIPROCATING_CYLINDERSTATUS_MAX_PACK_SIZE = 10;
 public const ulong UAVCAN_EQUIPMENT_ICE_RECIPROCATING_CYLINDERSTATUS_DT_SIG = 0xD68AC83A89D5B36B;
 
 
 
-
-
-
 public class uavcan_equipment_ice_reciprocating_CylinderStatus: IUAVCANSerialize {
-
-
-
     public Half ignition_timing_deg = new Half();
-
-
-
     public Half injection_time_ms = new Half();
-
-
-
     public Half cylinder_head_temperature = new Half();
-
-
-
     public Half exhaust_gas_temperature = new Half();
-
-
-
     public Half lambda_coefficient = new Half();
-
-
-
 
 public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx) 
 {

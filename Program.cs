@@ -60,9 +60,11 @@ namespace MissionPlanner
         [STAThread]
         public static void Main(string[] args)
         {
-            UAVCAN.test();
-
-            return;
+            try
+            {
+                UAVCAN.test();
+            } catch { }
+            
 
             Start();
         }

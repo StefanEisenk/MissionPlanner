@@ -86,14 +86,14 @@ if __name__ == '__main__':
     if buildlist is not None:
         for msg_name in buildlist:
             builtlist.add(msg_name)
-            pool.apply_async(build_message, (msg_name,))
-            #build_message(msg_name)
+            #pool.apply_async(build_message, (msg_name,))
+            build_message(msg_name)
     else:
         for msg_name in [msg.full_name for msg in messages]:
             print 'building %s' % (msg_name,)
             builtlist.add(msg_name)
-            pool.apply_async(build_message, (msg_name,))
-            #build_message(msg_name)
+            #pool.apply_async(build_message, (msg_name,))
+            build_message(msg_name)
             msg = message_dict[msg_name]
             if not msg.default_dtid is None and msg.kind == msg.KIND_MESSAGE:
                 message_names_enum += '(typeof(%s), %s, %s),\n' % (msg.full_name.replace('.','_'), msg.default_dtid, msg.get_data_type_signature())

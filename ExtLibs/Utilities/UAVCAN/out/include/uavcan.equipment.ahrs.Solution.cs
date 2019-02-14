@@ -1,5 +1,4 @@
 
-
 using uint8_t = System.Byte;
 using uint16_t = System.UInt16;
 using uint32_t = System.UInt32;
@@ -19,57 +18,22 @@ using OpenTK;
 
 public partial class uavcan {
 
-
-
 //using uavcan.Timestamp.cs
-
 
 public const int UAVCAN_EQUIPMENT_AHRS_SOLUTION_MAX_PACK_SIZE = 84;
 public const ulong UAVCAN_EQUIPMENT_AHRS_SOLUTION_DT_SIG = 0x72A63A3C6F41FA9B;
-
 public const int UAVCAN_EQUIPMENT_AHRS_SOLUTION_DT_ID = 1000;
 
 
 
-
-
-
 public class uavcan_equipment_ahrs_Solution: IUAVCANSerialize {
-
-
-
     public uavcan_Timestamp timestamp = new uavcan_Timestamp();
-
-
-
     [MarshalAs(UnmanagedType.ByValArray,SizeConst=4)] public Half[] orientation_xyzw = new Half[4];
-
-
-
-
-
     public uint8_t orientation_covariance_len; [MarshalAs(UnmanagedType.ByValArray,SizeConst=9)] public Half[] orientation_covariance = new Half[9];
-
-
-
     [MarshalAs(UnmanagedType.ByValArray,SizeConst=3)] public Half[] angular_velocity = new Half[3];
-
-
-
-
-
     public uint8_t angular_velocity_covariance_len; [MarshalAs(UnmanagedType.ByValArray,SizeConst=9)] public Half[] angular_velocity_covariance = new Half[9];
-
-
-
     [MarshalAs(UnmanagedType.ByValArray,SizeConst=3)] public Half[] linear_acceleration = new Half[3];
-
-
-
     public uint8_t linear_acceleration_covariance_len; [MarshalAs(UnmanagedType.ByValArray,SizeConst=9)] public Half[] linear_acceleration_covariance = new Half[9];
-
-
-
 
 public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx) 
 {
