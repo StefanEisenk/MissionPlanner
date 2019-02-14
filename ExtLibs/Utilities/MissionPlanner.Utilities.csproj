@@ -4,10 +4,15 @@
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <ApplicationIcon />
     <OutputTypeEx>library</OutputTypeEx>
-    <StartupObject />
+    <StartupObject></StartupObject>
     <DebugType>portable</DebugType>
     <DebugSymbols>True</DebugSymbols>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

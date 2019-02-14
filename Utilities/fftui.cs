@@ -298,16 +298,7 @@ namespace MissionPlanner.Utilities
             }
         }
 
-        class datastate
-        {
-            public string type;
-            public double timedelta;
-            public double lasttime;
-            public double sample_rate;
-            public List<double> datax = new List<double>();
-            public List<double> datay = new List<double>();
-            public List<double> dataz = new List<double>();
-        }
+
 
         private void BUT_log2_Click(object sender, EventArgs e)
         {
@@ -337,9 +328,9 @@ namespace MissionPlanner.Utilities
                 };
 
                 // 3 imus * 2 sets of measurements(gyr/acc)
-                datastate[] alldata = new datastate[3*2];
+                FFT2.datastate[] alldata = new FFT2.datastate[3*2];
                 for (int a = 0; a < alldata.Length; a++)
-                    alldata[a] = new datastate();
+                    alldata[a] = new FFT2.datastate();
 
                 foreach (var item in file.GetEnumeratorType(new string[] { "ACC1", "GYR1", "ACC2", "GYR2", "ACC3", "GYR3", "ACC4", "GYR4" }))
                 {
@@ -548,9 +539,9 @@ namespace MissionPlanner.Utilities
                 };
 
                 // 3 imus * 2 sets of measurements(gyr/acc)
-                datastate[] alldata = new datastate[3 * 2];
+                FFT2.datastate[] alldata = new FFT2.datastate[3 * 2];
                 for (int a = 0; a < alldata.Length; a++)
-                    alldata[a] = new datastate();
+                    alldata[a] = new FFT2.datastate();
 
                 foreach (var item in file.GetEnumeratorType(new string[] {"IMU","IMU2","IMU3"}))
                 {
@@ -735,9 +726,9 @@ namespace MissionPlanner.Utilities
                 };
 
                 // 3 imus * 2 sets of measurements(gyr/acc)
-                datastate[] alldata = new datastate[3 * 2];
+                FFT2.datastate[] alldata = new FFT2.datastate[3 * 2];
                 for (int a = 0; a < alldata.Length; a++)
-                    alldata[a] = new datastate();
+                    alldata[a] = new FFT2.datastate();
 
                 // state cache
                 int Ns = 0;
