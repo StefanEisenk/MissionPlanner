@@ -26,6 +26,23 @@ public static class Extension
         ans.decode(new uavcan.CanardRxTransfer(transfer.Skip(startoffset).ToArray()));
         return (T) ans;
     }
+
+    public static IEnumerable<Tuple<T, T>> NowNextBy2<T>(this IEnumerable<T> list)
+    {
+        T now = default(T);
+        T next = default(T);
+
+        int a = -1;
+        foreach (var item in list)
+        {
+            a++;
+            now = next;
+            next = item;
+            if (a % 2 == 0)
+                continue;
+            yield return new Tuple<T, T>(now, next);
+        }
+    }
 }
 
 public interface IUAVCANSerialize
@@ -149,7 +166,7 @@ public partial class uavcan
         if (bit_length == 1)
         {
             std_byte_length = sizeof(bool);
-            storage.boolean = (((int) (dynamic) value) != 0);
+            storage.boolean = ((int) (dynamic) value) != 0;
         }
         else if (bit_length <= 8)
         {

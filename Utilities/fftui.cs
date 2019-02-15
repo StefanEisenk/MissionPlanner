@@ -735,7 +735,6 @@ namespace MissionPlanner.Utilities
                 int type = 0;
                 int instance = 0;
                 int sensorno = 0;
-                double smp_rate = 0;
 
                 foreach (var item in file.GetEnumeratorType(new string[] { "ISBH", "ISBD" }))
                 {

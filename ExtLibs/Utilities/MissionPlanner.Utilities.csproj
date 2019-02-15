@@ -16,6 +16,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="UAVCAN\**" />
+    <EmbeddedResource Remove="UAVCAN\**" />
+    <None Remove="UAVCAN\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Remove="Capture.cs" />
   </ItemGroup>
 

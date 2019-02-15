@@ -62,15 +62,15 @@ namespace MissionPlanner
         {
             try
             {
-                UAVCAN.test();
+                UAVCAN.UAVCAN.test();
             } catch { }
             
 
-            Start();
+            Start(args);
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void Start()
+        public static void Start(string[] args)
         { 
             Program.args = args;
             Console.WriteLine(

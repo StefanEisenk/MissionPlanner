@@ -180,6 +180,7 @@
       <Name>tlogThumbnailHandler</Name>
     </ProjectReference>
     <ProjectReference Include="ExtLibs\Transitions\Transitions.csproj" />
+    <ProjectReference Include="ExtLibs\UAVCAN\UAVCAN.csproj" />
     <ProjectReference Include="ExtLibs\Utilities\MissionPlanner.Utilities.csproj">
       <Project>{1378A66C-38E4-46F5-A05F-DC04EF7D4D16}</Project>
       <Name>MissionPlanner.Utilities</Name>
@@ -224,8 +225,6 @@
     <PackageReference Include="OpenTK.GLControl" Version="3.0.1" />
     <PackageReference Include="SharpDX" version="4.1.0" targetFramework="net462" />
     <PackageReference Include="SharpDX.DirectInput" version="4.1.0" targetFramework="net462" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0005" />
-    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta0005" />
     <PackageReference Include="SkiaSharp" Version="1.60.3" />
     <PackageReference Include="SkiaSharp.Views" Version="1.60.3" />
     <PackageReference Include="SSH.NET" version="2016.1.0" targetFramework="net40" />
