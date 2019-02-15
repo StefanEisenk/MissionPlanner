@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <Reference Include="OpenTK">
-      <HintPath>..\..\bin\Release\net461\OpenTK.dll</HintPath>
+      <HintPath>..\OpenTK.dll</HintPath>
     </Reference>
   </ItemGroup>
 
