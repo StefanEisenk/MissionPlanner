@@ -232,8 +232,7 @@ namespace MissionPlanner
             {
                 _displayConfiguration = value;
                 Settings.Instance["displayview"] = _displayConfiguration.ConvertToString();
-                if (LayoutChanged != null)
-                    LayoutChanged(null, EventArgs.Empty);
+                LayoutChanged?.Invoke(null, EventArgs.Empty);
             }
         }
 

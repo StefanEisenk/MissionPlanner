@@ -140,15 +140,17 @@ namespace MissionPlanner.Utilities
                 double[] datainAY = new double[N];
                 double[] datainAZ = new double[N];
 
-                List<double[]> avg = new List<double[]>();
+                List<double[]> avg = new List<double[]>
+                {
 
-                // 6
-                avg.Add(new double[N/2]);
-                avg.Add(new double[N/2]);
-                avg.Add(new double[N/2]);
-                avg.Add(new double[N/2]);
-                avg.Add(new double[N/2]);
-                avg.Add(new double[N/2]);
+                    // 6
+                    new double[N / 2],
+                    new double[N / 2],
+                    new double[N / 2],
+                    new double[N / 2],
+                    new double[N / 2],
+                    new double[N / 2]
+                };
 
                 object[] datas = new object[] {datainGX, datainGY, datainGZ, datainAX, datainAY, datainAZ};
                 string[] datashead = new string[]

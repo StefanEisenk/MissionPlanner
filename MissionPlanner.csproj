@@ -6,7 +6,7 @@
     <OutputType>Exe</OutputType>
     <StartupObject></StartupObject>
     <Authors>Michael Oborne</Authors>
-    <Version>1.3.62</Version>
+    <Version>1.3.62.1</Version>
     <DebugType>portable</DebugType>
     <Company>Michael Oborne</Company>
     <Product>Mission Planner</Product>
@@ -1889,109 +1889,127 @@
     <None Include="block_plane_0.dae">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Drivers\arduinomega2560.cat" />
-    <None Include="Drivers\ArduinoMEGA2560.inf" />
-    <None Include="Drivers\chibios.cat" />
-    <None Include="Drivers\ChibiOS.inf" />
-    <None Include="Drivers\cube.cat">
+    <Content Include="Drivers\arduino.cat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Drivers\Cube.inf">
+    </Content>
+    <Content Include="Drivers\arduino.inf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Drivers\DPInstx64.exe">
+    </Content>
+    <Content Include="Drivers\chibios.cat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Drivers\DPInstx86.exe">
+    </Content>
+    <Content Include="Drivers\ChibiOS.inf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Drivers\mindpx.cat">
+    </Content>
+    <Content Include="Drivers\cube.cat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Drivers\mindpx.inf">
+    </Content>
+    <Content Include="Drivers\Cube.inf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Drivers\px4flow.cat">
+    </Content>
+    <Content Include="Drivers\DPInstx64.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Drivers\px4flow.inf">
+    </Content>
+    <Content Include="Drivers\DPInstx86.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Drivers\px4fmu.cat">
+    </Content>
+    <Content Include="Drivers\mindpx.cat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Drivers\px4fmu.inf">
+    </Content>
+    <Content Include="Drivers\mindpx.inf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Drivers\px4mav.cat">
+    </Content>
+    <Content Include="Drivers\px4flow.cat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Drivers\px4mav.inf">
+    </Content>
+    <Content Include="Drivers\px4flow.inf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    </Content>
+    <Content Include="Drivers\px4fmu.cat">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Drivers\px4fmu.inf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Drivers\px4mav.cat">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Drivers\px4mav.inf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="Drivers\signed.cer">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Drivers\ubloxusb.cat">
+    <Content Include="Drivers\stmcdc.cat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Drivers\ubloxusb.inf">
+    </Content>
+    <Content Include="Drivers\stmcdc.inf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Drivers\ubloxusb.sys">
+    </Content>
+    <Content Include="Drivers\ubloxusb.cat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Drivers\ubloxusb64.sys">
+    </Content>
+    <Content Include="Drivers\ubloxusb.inf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Drivers\vrbrain.cat">
+    </Content>
+    <Content Include="Drivers\ubloxusb.sys">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Drivers\vrbrain.inf">
+    </Content>
+    <Content Include="Drivers\ubloxusb64.sys">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Drivers\vrcore.inf">
+    </Content>
+    <Content Include="Drivers\vrbrain.cat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Drivers\vrflightstop.cat">
+    </Content>
+    <Content Include="Drivers\vrbrain.inf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Drivers\vrflightstop.inf">
+    </Content>
+    <Content Include="Drivers\vrcore.cat" />
+    <Content Include="Drivers\vrcore.inf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Drivers\vrgimbal.inf">
+    </Content>
+    <Content Include="Drivers\vrflightstop.cat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Drivers\vrhero.cat">
+    </Content>
+    <Content Include="Drivers\vrflightstop.inf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Drivers\vrhero.inf">
+    </Content>
+    <Content Include="Drivers\vrgimbal.cat" />
+    <Content Include="Drivers\vrgimbal.inf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Drivers\vrmapper.inf">
+    </Content>
+    <Content Include="Drivers\vrhero.cat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Drivers\vrspark.inf">
+    </Content>
+    <Content Include="Drivers\vrhero.inf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Drivers\vrthermal.cat">
+    </Content>
+    <Content Include="Drivers\vrmapper.cat" />
+    <Content Include="Drivers\vrmapper.inf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Drivers\vrthermal.inf">
+    </Content>
+    <Content Include="Drivers\vrspark.cat" />
+    <Content Include="Drivers\vrspark.inf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Drivers\vrubrain.cat">
+    </Content>
+    <Content Include="Drivers\vrthermal.cat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Drivers\vrubrain.inf">
+    </Content>
+    <Content Include="Drivers\vrthermal.inf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Drivers\vrugimbal.cat">
+    </Content>
+    <Content Include="Drivers\vrubrain.cat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Drivers\vrugimbal.inf">
+    </Content>
+    <Content Include="Drivers\vrubrain.inf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    </Content>
+    <Content Include="Drivers\vrugimbal.cat">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Drivers\vrugimbal.inf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="m3u\both.m3u">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
