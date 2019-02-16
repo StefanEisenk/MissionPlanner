@@ -124,7 +124,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MissionPlanner.HIL", "ExtLi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CsAssortedWidgets", "ExtLibs\CsAssortedWidgets\CsAssortedWidgets.csproj", "{3B933839-C505-48D4-A5CE-D9375C88E943}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UAVCAN", "ExtLibs\UAVCAN\UAVCAN.csproj", "{3A413E59-A20E-477C-997E-64B1398E0E80}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UAVCAN", "ExtLibs\UAVCAN\UAVCAN.csproj", "{3A413E59-A20E-477C-997E-64B1398E0E80}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
