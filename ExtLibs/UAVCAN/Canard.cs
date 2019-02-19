@@ -407,5 +407,55 @@ namespace UAVCAN
         {
             return Half.FromBytes(BitConverter.GetBytes(float16Val), 0);
         }
+
+        [StructLayout(LayoutKind.Explicit, Pack = 1)]
+        public struct fp32
+        {
+            [FieldOffset(0)] public uint u;
+            [FieldOffset(0)] public float f;
+
+            public static implicit operator fp32(uint v)
+            {
+                return new fp32() {u = v};
+            }
+        }
+
+        private static ushort make_float16(float value)
+        {
+            fp32 f32infty = 255U << 23;
+            fp32 f16infty = 31U << 23;
+            fp32 magic = 15U << 23;
+            uint sign_mask = 0x80000000U;
+            uint round_mask = ~0xFFFU;
+
+            fp32 @in = 0;
+            ushort @out = 0;
+
+            @in.f = value;
+
+            uint sign = @in.u & sign_mask;
+            @in.u ^= sign;
+
+            if (@in.u >= f32infty.u)
+            {
+                @out = (@in.u > f32infty.u) ? (ushort)0x7FFFU : (ushort)0x7C00U;
+            }
+            else
+            {
+                @in.u &= round_mask;
+                @in.f *= magic.f;
+                @in.u -= round_mask;
+                if (@in.u > f16infty.u)
+                {
+                    @in.u = f16infty.u;
+                }
+
+                @out = (ushort) (@in.u >> 13);
+            }
+
+            @out |= (ushort) (sign >> 16);
+
+            return @out;
+        }
     }
 }

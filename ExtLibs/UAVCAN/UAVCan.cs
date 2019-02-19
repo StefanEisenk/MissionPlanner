@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using OpenTK;
@@ -18,7 +19,7 @@ namespace UAVCAN
             public int bit = 0;
         }
 
-        public static bool testconversion<T>(T input, byte bitlength, bool signed) where T: struct
+        public static bool testconversion<T>(T input, byte bitlength, bool signed) where T : struct
         {
             var buf = new byte[8];
             T ans = input;
@@ -31,8 +32,33 @@ namespace UAVCAN
             return true;
         }
 
-    public static void test()
+        public static void update(string firmware_name)
         {
+            var firmware_namebytes = ASCIIEncoding.ASCII.GetBytes(firmware_name);
+
+            uavcan.uavcan_protocol_GetNodeInfo_res entry = new uavcan.uavcan_protocol_GetNodeInfo_res();
+            //entry.name
+            //entry.software_version.image_crc
+            if (entry.status.mode != uavcan.UAVCAN_PROTOCOL_NODESTATUS_MODE_SOFTWARE_UPDATE)
+            {
+                var req_msg =
+                    new uavcan.uavcan_protocol_file_BeginFirmwareUpdate_req()
+                    {
+                        image_file_remote_path = new uavcan.uavcan_protocol_file_Path()
+                            {path = firmware_namebytes},
+                        source_node_id = 126
+                    };
+                req_msg.image_file_remote_path.path_len = (byte) firmware_namebytes.Length;
+
+                var state = new statetracking();
+                req_msg.encode(chunk_cb, state);
+            }
+        }
+
+        public static void test()
+        {
+            update("file");
+
             var fix = new uavcan.uavcan_equipment_gnss_Fix()
             {
                 timestamp = new uavcan.uavcan_Timestamp() {usec = 1},
@@ -44,20 +70,20 @@ namespace UAVCAN
                 longitude_deg_1e8 = 7,
                 num_leap_seconds = 17,
                 pdop = new Half(8),
-                sats_used = 10, ned_velocity = new []{new Half(1), new Half(2), new Half(3)   }, status = 3
+                sats_used = 10, ned_velocity = new[] {new Half(1), new Half(2), new Half(3)}, status = 3
             };
 
-            testconversion((byte)3, 3, false);
-            testconversion((byte)3, 3, false);
-            testconversion((sbyte)-3, 3, true);
-            testconversion((byte)3, 5, false);
-            testconversion((sbyte)-3, 5, true);
-            testconversion((sbyte)-3, 5, true);
-            testconversion((ulong)1234567890, 55, false);
-            testconversion((ulong)1234567890, 33, false);
-            testconversion((long)-1234567890, 33, true);
+            testconversion((byte) 3, 3, false);
+            testconversion((byte) 3, 3, false);
+            testconversion((sbyte) -3, 3, true);
+            testconversion((byte) 3, 5, false);
+            testconversion((sbyte) -3, 5, true);
+            testconversion((sbyte) -3, 5, true);
+            testconversion((ulong) 1234567890, 55, false);
+            testconversion((ulong) 1234567890, 33, false);
+            testconversion((long) -1234567890, 33, true);
 
-            testconversion((int)-12345678, 27, true);
+            testconversion((int) -12345678, 27, true);
             testconversion((int) (1 << 25), 27, true);
             // will fail
             //testconversion((int)(1 << 26), 27, true);
@@ -69,7 +95,7 @@ namespace UAVCAN
 
             var data = state.bi.getBytes().Reverse().ToArray();
 
-            Array.Resize(ref data, (state.bit + 7)/8);
+            Array.Resize(ref data, (state.bit + 7) / 8);
 
             var fixtest = new uavcan.uavcan_equipment_gnss_Fix();
             fixtest.decode(new uavcan.CanardRxTransfer(data));
@@ -90,7 +116,7 @@ namespace UAVCAN
             {
                 var line_len = line.Length;
 
-                if(line_len ==0)
+                if (line_len == 0)
                     continue;
 
                 if (line[0] == 'T')
@@ -121,10 +147,10 @@ namespace UAVCAN
                 var payload = new CANPayload(packet_data.ToArray());
 
                 if (payload.SOT)
-                    transfer[(frame.SourceNode,frame.MsgTypeID,payload.TransferID)] = new List<byte>();
+                    transfer[(frame.SourceNode, frame.MsgTypeID, payload.TransferID)] = new List<byte>();
 
                 // if have not seen SOT, abort
-                if(!transfer.ContainsKey((frame.SourceNode, frame.MsgTypeID, payload.TransferID)))
+                if (!transfer.ContainsKey((frame.SourceNode, frame.MsgTypeID, payload.TransferID)))
                     continue;
 
                 transfer[(frame.SourceNode, frame.MsgTypeID, payload.TransferID)].AddRange(payload.Payload);
@@ -158,7 +184,7 @@ namespace UAVCAN
                     {
                         startbyte = 2;
 
-                                var payload_crc = result[0] | result[1] << 8;
+                        var payload_crc = result[0] | result[1] << 8;
 
                         var crcprocess = new TransferCRC();
                         crcprocess.add(dt_sig, 8);
@@ -186,27 +212,42 @@ namespace UAVCAN
                         {
                             var ans = result.ByteArrayToUAVCANMsg<uavcan.uavcan_protocol_GetNodeInfo_req>(startbyte);
                         }
-                        catch { }
+                        catch
+                        {
+                        }
                     }
                     else if (frame.MsgTypeID == uavcan.UAVCAN_EQUIPMENT_RANGE_SENSOR_MEASUREMENT_DT_ID)
                     {
-                        var ans = result.ByteArrayToUAVCANMsg<uavcan.uavcan_equipment_range_sensor_Measurement>(startbyte);
+                        var ans =
+                            result.ByteArrayToUAVCANMsg<uavcan.uavcan_equipment_range_sensor_Measurement>(startbyte);
                     }
                     else if (frame.MsgTypeID == uavcan.UAVCAN_EQUIPMENT_GNSS_FIX_DT_ID)
                     {
-                        var ans = result.ByteArrayToUAVCANMsg<uavcan.uavcan_equipment_gnss_Fix>(startbyte);
+                        try
+                        {
+                            var ans = result.ByteArrayToUAVCANMsg<uavcan.uavcan_equipment_gnss_Fix>(startbyte);
+                        }
+                        catch
+                        {
+                        }
                     }
                     else
                     {
                         var type = uavcan.MSG_INFO.First(a => a.Item2 == frame.MsgTypeID).Item1;
 
                         Console.WriteLine(type);
+
+                        MethodInfo method = typeof(Extension).GetMethod("ByteArrayToUAVCANMsg");
+                        MethodInfo generic = method.MakeGenericMethod(type);
+                        var ans = generic.Invoke(null, new object[] {result, startbyte});
+
+                        Console.WriteLine(ans);
                     }
                 }
             }
         }
 
- 
+
 
         private static void chunk_cb(byte[] buffer, int sizeinbits, object ctx)
         {
@@ -219,11 +260,11 @@ namespace UAVCAN
 
             BigInteger input = new BigInteger(buffer.Reverse().ToArray());
 
-            for(uint a = 0; a < sizeinbits; a++)
+            for (uint a = 0; a < sizeinbits; a++)
             {
-                if ((input & (1L << (int)a)) > 0)
+                if ((input & (1L << (int) a)) > 0)
                 {
-                    stuff.bi.setBit((uint)stuff.bit + a);
+                    stuff.bi.setBit((uint) stuff.bit + a);
                 }
             }
 
