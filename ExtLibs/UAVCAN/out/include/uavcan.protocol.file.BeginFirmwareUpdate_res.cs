@@ -15,7 +15,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 
@@ -34,7 +35,7 @@ public class uavcan_protocol_file_BeginFirmwareUpdate_res: IUAVCANSerialize {
     public uint8_t error = new uint8_t();
     public uint8_t optional_error_message_len; [MarshalAs(UnmanagedType.ByValArray,SizeConst=127)] public uint8_t[] optional_error_message = new uint8_t[127];
 
-public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx) 
+public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {
 	encode_uavcan_protocol_file_BeginFirmwareUpdate_res(this, chunk_cb, ctx);
 }
@@ -46,4 +47,5 @@ public void decode(CanardRxTransfer transfer)
 
 };
 
+}
 }

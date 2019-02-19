@@ -15,7 +15,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 //using uavcan.protocol.HardwareVersion.cs
@@ -34,7 +35,7 @@ public class uavcan_protocol_GetNodeInfo_res: IUAVCANSerialize {
     public uavcan_protocol_HardwareVersion hardware_version = new uavcan_protocol_HardwareVersion();
     public uint8_t name_len; [MarshalAs(UnmanagedType.ByValArray,SizeConst=80)] public uint8_t[] name = new uint8_t[80];
 
-public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx) 
+public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {
 	encode_uavcan_protocol_GetNodeInfo_res(this, chunk_cb, ctx);
 }
@@ -46,4 +47,5 @@ public void decode(CanardRxTransfer transfer)
 
 };
 
+}
 }

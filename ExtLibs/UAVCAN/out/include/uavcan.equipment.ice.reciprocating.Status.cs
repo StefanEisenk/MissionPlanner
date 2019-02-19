@@ -15,7 +15,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 //using uavcan.equipment.ice.reciprocating.CylinderStatus.cs
@@ -75,7 +76,7 @@ public class uavcan_equipment_ice_reciprocating_Status: IUAVCANSerialize {
     public uint8_t spark_plug_usage = new uint8_t();
     public uint8_t cylinder_status_len; [MarshalAs(UnmanagedType.ByValArray,SizeConst=16)] public uavcan_equipment_ice_reciprocating_CylinderStatus[] cylinder_status = new uavcan_equipment_ice_reciprocating_CylinderStatus[16];
 
-public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx) 
+public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {
 	encode_uavcan_equipment_ice_reciprocating_Status(this, chunk_cb, ctx);
 }
@@ -87,4 +88,5 @@ public void decode(CanardRxTransfer transfer)
 
 };
 
+}
 }

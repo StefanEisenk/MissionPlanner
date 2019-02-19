@@ -15,7 +15,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 
@@ -29,7 +30,7 @@ public const double UAVCAN_TIMESTAMP_UNKNOWN = 0; // saturated uint56
 public class uavcan_Timestamp: IUAVCANSerialize {
     public uint64_t usec = new uint64_t();
 
-public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx) 
+public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {
 	encode_uavcan_Timestamp(this, chunk_cb, ctx);
 }
@@ -41,4 +42,5 @@ public void decode(CanardRxTransfer transfer)
 
 };
 
+}
 }

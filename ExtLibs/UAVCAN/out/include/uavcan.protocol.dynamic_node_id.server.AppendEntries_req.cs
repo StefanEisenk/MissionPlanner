@@ -15,7 +15,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 //using uavcan.protocol.dynamic_node_id.server.Entry.cs
@@ -36,7 +37,7 @@ public class uavcan_protocol_dynamic_node_id_server_AppendEntries_req: IUAVCANSe
     public uint8_t leader_commit = new uint8_t();
     public uint8_t entries_len; [MarshalAs(UnmanagedType.ByValArray,SizeConst=1)] public uavcan_protocol_dynamic_node_id_server_Entry[] entries = new uavcan_protocol_dynamic_node_id_server_Entry[1];
 
-public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx) 
+public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {
 	encode_uavcan_protocol_dynamic_node_id_server_AppendEntries_req(this, chunk_cb, ctx);
 }
@@ -48,4 +49,5 @@ public void decode(CanardRxTransfer transfer)
 
 };
 
+}
 }

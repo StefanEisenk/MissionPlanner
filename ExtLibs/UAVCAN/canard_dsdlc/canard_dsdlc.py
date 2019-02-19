@@ -2,6 +2,7 @@ import uavcan.dsdl
 import argparse
 import os
 import em
+import json
 from canard_dsdlc_helpers import *
 
 templates = [
@@ -52,6 +53,8 @@ for template in templates:
 def build_message(msg_name):
     print 'building %s' % (msg_name,)
     msg = message_dict[msg_name]
+    with open('%s.json' % (msg_name), 'wb') as f:
+        f.write(json.dumps(msg, default=lambda x: x.__dict__))
     for template in templates:
         output = em.expand(template['source'], msg=msg)
 
@@ -73,6 +76,8 @@ if __name__ == '__main__':
                 for field in fields:
                     if field.type.category == field.type.CATEGORY_COMPOUND:
                         new_buildlist.add(field.type.full_name)
+                    elif field.type.category == field.type.CATEGORY_ARRAY and field.type.value_type.category == field.type.CATEGORY_COMPOUND:
+                        new_buildlist.add(field.type.value_type.full_name)
 
             if not new_buildlist-buildlist:
                 break
@@ -81,13 +86,21 @@ if __name__ == '__main__':
 
     from multiprocessing import Pool
 
-    pool = Pool()
+    pool = Pool(2)
     builtlist = set()
     if buildlist is not None:
         for msg_name in buildlist:
             builtlist.add(msg_name)
             #pool.apply_async(build_message, (msg_name,))
             build_message(msg_name)
+            msg = message_dict[msg_name]
+            print dir(msg)
+            if not msg.default_dtid is None and msg.kind == msg.KIND_MESSAGE:
+                message_names_enum += '(typeof(%s), %s, 0x%08X),\n' % (msg.full_name.replace('.','_'), msg.default_dtid, msg.get_data_type_signature())
+
+            if not msg.default_dtid is None and msg.kind == msg.KIND_SERVICE:
+                message_names_enum += '(typeof(%s_req), %s, 0x%08X),\n' % (msg.full_name.replace('.','_'), msg.default_dtid, msg.get_data_type_signature())
+                message_names_enum += '(typeof(%s_res), %s, 0x%08X),\n' % (msg.full_name.replace('.','_'), msg.default_dtid, msg.get_data_type_signature())
     else:
         for msg_name in [msg.full_name for msg in messages]:
             print 'building %s' % (msg_name,)
@@ -95,12 +108,13 @@ if __name__ == '__main__':
             #pool.apply_async(build_message, (msg_name,))
             build_message(msg_name)
             msg = message_dict[msg_name]
+            print dir(msg)
             if not msg.default_dtid is None and msg.kind == msg.KIND_MESSAGE:
-                message_names_enum += '(typeof(%s), %s, %s),\n' % (msg.full_name.replace('.','_'), msg.default_dtid, msg.get_data_type_signature())
+                message_names_enum += '(typeof(%s), %s, 0x%08X),\n' % (msg.full_name.replace('.','_'), msg.default_dtid, msg.get_data_type_signature())
 
             if not msg.default_dtid is None and msg.kind == msg.KIND_SERVICE:
-                message_names_enum += '(typeof(%s_req), %s, %s),\n' % (msg.full_name.replace('.','_'), msg.default_dtid, msg.get_data_type_signature())
-                message_names_enum += '(typeof(%s_res), %s, %s),\n' % (msg.full_name.replace('.','_'), msg.default_dtid, msg.get_data_type_signature())
+                message_names_enum += '(typeof(%s_req), %s, 0x%08X),\n' % (msg.full_name.replace('.','_'), msg.default_dtid, msg.get_data_type_signature())
+                message_names_enum += '(typeof(%s_res), %s, 0x%08X),\n' % (msg.full_name.replace('.','_'), msg.default_dtid, msg.get_data_type_signature())
 
     pool.close()
     pool.join()
@@ -109,7 +123,7 @@ if __name__ == '__main__':
 
     print 'test'
     with open('messages.cs', 'wb') as f:
-        f.write('using System;using OpenTK; public partial class uavcan { public static readonly (Type,UInt16, ulong)[] MSG_INFO = {'+message_names_enum+'};}')
+        f.write('using System;using OpenTK; namespace UAVCAN {public partial class uavcan { public static readonly (Type,UInt16, ulong)[] MSG_INFO = {'+message_names_enum+'};}}')
 
     print message_names_enum
 

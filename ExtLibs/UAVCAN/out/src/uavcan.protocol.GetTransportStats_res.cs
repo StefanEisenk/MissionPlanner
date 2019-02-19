@@ -15,7 +15,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 
@@ -97,4 +98,5 @@ msg.can_iface_stats_len = 0;
 
 }
 
+}
 }

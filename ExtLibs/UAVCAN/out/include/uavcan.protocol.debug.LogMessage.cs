@@ -15,7 +15,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 //using uavcan.protocol.debug.LogLevel.cs
@@ -31,7 +32,7 @@ public class uavcan_protocol_debug_LogMessage: IUAVCANSerialize {
     public uint8_t source_len; [MarshalAs(UnmanagedType.ByValArray,SizeConst=31)] public uint8_t[] source = new uint8_t[31];
     public uint8_t text_len; [MarshalAs(UnmanagedType.ByValArray,SizeConst=90)] public uint8_t[] text = new uint8_t[90];
 
-public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx) 
+public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {
 	encode_uavcan_protocol_debug_LogMessage(this, chunk_cb, ctx);
 }
@@ -43,4 +44,5 @@ public void decode(CanardRxTransfer transfer)
 
 };
 
+}
 }

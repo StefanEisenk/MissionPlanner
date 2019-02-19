@@ -15,7 +15,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 //using uavcan.Timestamp.cs
@@ -42,7 +43,7 @@ public class uavcan_navigation_GlobalNavigationSolution: IUAVCANSerialize {
     [MarshalAs(UnmanagedType.ByValArray,SizeConst=3)] public Half[] linear_acceleration_body = new Half[3];
     public uint8_t velocity_covariance_len; [MarshalAs(UnmanagedType.ByValArray,SizeConst=36)] public Half[] velocity_covariance = new Half[36];
 
-public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx) 
+public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {
 	encode_uavcan_navigation_GlobalNavigationSolution(this, chunk_cb, ctx);
 }
@@ -54,4 +55,5 @@ public void decode(CanardRxTransfer transfer)
 
 };
 
+}
 }

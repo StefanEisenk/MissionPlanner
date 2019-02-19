@@ -15,7 +15,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 
@@ -31,7 +32,7 @@ public const double UAVCAN_PROTOCOL_PANIC_MAX_INTERVAL_MS = 500; // saturated ui
 public class uavcan_protocol_Panic: IUAVCANSerialize {
     public uint8_t reason_text_len; [MarshalAs(UnmanagedType.ByValArray,SizeConst=7)] public uint8_t[] reason_text = new uint8_t[7];
 
-public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx) 
+public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {
 	encode_uavcan_protocol_Panic(this, chunk_cb, ctx);
 }
@@ -43,4 +44,5 @@ public void decode(CanardRxTransfer transfer)
 
 };
 
+}
 }

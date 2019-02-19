@@ -15,37 +15,38 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 
 
 /*
 
-static uavcan_message_descriptor_s uavcan_Measurement_descriptor = {
-    UAVCAN_MEASUREMENT_DT_SIG,
-    UAVCAN_MEASUREMENT_DT_ID,
+static uavcan_message_descriptor_s com_hex_equipment_flow_Measurement_descriptor = {
+    COM_HEX_EQUIPMENT_FLOW_MEASUREMENT_DT_SIG,
+    COM_HEX_EQUIPMENT_FLOW_MEASUREMENT_DT_ID,
     CanardTransferTypeBroadcast,
-    sizeof(uavcan_Measurement),
-    UAVCAN_MEASUREMENT_MAX_PACK_SIZE,
+    sizeof(com_hex_equipment_flow_Measurement),
+    COM_HEX_EQUIPMENT_FLOW_MEASUREMENT_MAX_PACK_SIZE,
     encode_func,
     decode_func,
     null
 };
 */
 
-static void encode_uavcan_Measurement(uavcan_Measurement msg, uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx) {
+static void encode_com_hex_equipment_flow_Measurement(com_hex_equipment_flow_Measurement msg, uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx) {
     uint8_t[] buffer = new uint8_t[8];
-    _encode_uavcan_Measurement(buffer, msg, chunk_cb, ctx, true);
+    _encode_com_hex_equipment_flow_Measurement(buffer, msg, chunk_cb, ctx, true);
 }
 
-static uint32_t decode_uavcan_Measurement(CanardRxTransfer transfer, uavcan_Measurement msg) {
+static uint32_t decode_com_hex_equipment_flow_Measurement(CanardRxTransfer transfer, com_hex_equipment_flow_Measurement msg) {
     uint32_t bit_ofs = 0;
-    _decode_uavcan_Measurement(transfer, ref bit_ofs, msg, true);
+    _decode_com_hex_equipment_flow_Measurement(transfer, ref bit_ofs, msg, true);
     return (bit_ofs+7)/8;
 }
 
-static void _encode_uavcan_Measurement(uint8_t[] buffer, uavcan_Measurement msg, uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx, bool tao) {
+static void _encode_com_hex_equipment_flow_Measurement(uint8_t[] buffer, com_hex_equipment_flow_Measurement msg, uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx, bool tao) {
 
     memset(buffer,0,8);
     canardEncodeScalar(buffer, 0, 32, msg.integration_interval);
@@ -65,7 +66,7 @@ static void _encode_uavcan_Measurement(uint8_t[] buffer, uavcan_Measurement msg,
     chunk_cb(buffer, 8, ctx);
 }
 
-static void _decode_uavcan_Measurement(CanardRxTransfer transfer,ref uint32_t bit_ofs, uavcan_Measurement msg, bool tao) {
+static void _decode_com_hex_equipment_flow_Measurement(CanardRxTransfer transfer,ref uint32_t bit_ofs, com_hex_equipment_flow_Measurement msg, bool tao) {
 
     canardDecodeScalar(transfer, bit_ofs, 32, true, ref msg.integration_interval);
     bit_ofs += 32;
@@ -87,4 +88,5 @@ static void _decode_uavcan_Measurement(CanardRxTransfer transfer,ref uint32_t bi
 
 }
 
+}
 }

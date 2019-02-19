@@ -176,9 +176,9 @@ namespace UAVCAN
 
                     }
 
-                    if (frame.MsgTypeID == uavcan.UAVCAN_MEASUREMENT_DT_ID)
+                    if (frame.MsgTypeID == uavcan.COM_HEX_EQUIPMENT_FLOW_MEASUREMENT_DT_ID)
                     {
-                        var ans = result.ByteArrayToUAVCANMsg<uavcan.uavcan_Measurement>(startbyte);
+                        var ans = result.ByteArrayToUAVCANMsg<uavcan.com_hex_equipment_flow_Measurement>(startbyte);
                     }
                     else if (frame.MsgTypeID == uavcan.UAVCAN_PROTOCOL_NODESTATUS_DT_ID)
                     {
@@ -231,128 +231,5 @@ namespace UAVCAN
         }
     }
 
-    public class TransferCRC
-    {
-        ushort value_ = 0xFFFF;
-
-        public bool check()
-        {
-            add("123456789".Select(a => (byte)a).ToArray(), 9);
-
-            return get() == 0x29B1;
-        }
-
-        public 
-        TransferCRC()
-        { }
-
-        public void add(byte byte1)
-        {
-            value_ ^= (ushort)((ushort)byte1 << 8);
-            for (byte bit = 0; bit < 8; bit++)
-            {
-                if ((value_ & 0x8000U) > 0)
-                {
-                    value_ = (ushort)((ushort)(value_ << 1) ^ 0x1021U);
-                }
-                else
-                {
-                    value_ = (ushort)(value_ << 1);
-                }
-            }
-        }
-
-        public void add(byte[] bytes, int len)
-        {
-            var total = len;
-            while (len > 0)
-            {
-                add(bytes[total - len]);
-                len--;
-            }
-        }
-
-        public static ushort compute(byte[] bytes, int len)
-        {
-            var temp = new TransferCRC();
-            var total = len;
-            while (len > 0)
-            {
-                temp.add(bytes[total - len]);
-                len--;
-            }
-
-            return temp.get();
-        }
-
-        public ushort get() { return value_; }
-    }
-
     // 29bit
-    public class CANFrame
-    {
-        private byte[] packet_data;
-
-        public CANFrame(byte[] packet_data)
-        {
-            this.packet_data = packet_data;
-        }
-
-        // message frame
-        //0-127
-        public byte SourceNode
-        {
-            get { return (byte)(packet_data[0] & 0x7f); }
-        }
-        public bool isServiceMsg
-        {
-            get { return (packet_data[0] & 0x80) > 0; }
-        }
-        // 0 - 65535    anon 0-3
-        public UInt16 MsgTypeID
-        {
-            get { return BitConverter.ToUInt16(packet_data, 1); }
-        }
-        // 0-31 high-low
-        public byte Priority
-        {
-            get { return (byte)(packet_data[3] & 0x1f); }
-        }
-
-        // anon frame
-        public UInt16 Discriminator {
-            get { return BitConverter.ToUInt16(packet_data, 1); }
-        }
-
-        // service frame
-        //0-127
-        public byte DestinationNode { get { return (byte)(packet_data[1] & 0x7f); } }
-        public bool isRequest { get { return (packet_data[1] & 0x80) > 0; } }
-        //0-255
-        public byte ServiceType { get { return (byte)(packet_data[2]); } }
-    }
-
-    public class CANPayload
-    {
-        public byte[] packet_data;
-
-        public CANPayload(byte[] packet_data)
-        {
-            this.packet_data = packet_data;
-        }
-
-        //0-31
-        public byte TransferID
-        {
-            get { return (byte)(packet_data[packet_data.Length-1] & 0x1f); }
-        }
-        public bool Toggle { get { return (packet_data[packet_data.Length - 1] & 0x20) > 0; } }
-        public bool EOT { get { return (packet_data[packet_data.Length - 1] & 0x40) > 0; } }
-        public bool SOT { get { return (packet_data[packet_data.Length - 1] & 0x80) > 0; } }
-
-        public byte[] Payload
-        {
-            get { return packet_data.Take(packet_data.Length - 1).ToArray(); }
-        }
-    }
 }

@@ -15,7 +15,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 //using uavcan.equipment.camera_gimbal.Mode.cs
@@ -37,7 +38,7 @@ public class uavcan_equipment_camera_gimbal_GEOPOICommand: IUAVCANSerialize {
     public int32_t height_cm = new int32_t();
     public uint8_t height_reference = new uint8_t();
 
-public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx) 
+public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {
 	encode_uavcan_equipment_camera_gimbal_GEOPOICommand(this, chunk_cb, ctx);
 }
@@ -49,4 +50,5 @@ public void decode(CanardRxTransfer transfer)
 
 };
 
+}
 }

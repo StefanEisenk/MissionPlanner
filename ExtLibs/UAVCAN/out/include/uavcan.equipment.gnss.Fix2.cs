@@ -15,7 +15,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 //using uavcan.Timestamp.cs
@@ -63,7 +64,7 @@ public class uavcan_equipment_gnss_Fix2: IUAVCANSerialize {
     public Half pdop = new Half();
     public uint8_t ecef_position_velocity_len; [MarshalAs(UnmanagedType.ByValArray,SizeConst=1)] public uavcan_equipment_gnss_ECEFPositionVelocity[] ecef_position_velocity = new uavcan_equipment_gnss_ECEFPositionVelocity[1];
 
-public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx) 
+public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {
 	encode_uavcan_equipment_gnss_Fix2(this, chunk_cb, ctx);
 }
@@ -75,4 +76,5 @@ public void decode(CanardRxTransfer transfer)
 
 };
 
+}
 }

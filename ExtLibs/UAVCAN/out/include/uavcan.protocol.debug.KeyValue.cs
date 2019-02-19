@@ -15,7 +15,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 
@@ -29,7 +30,7 @@ public class uavcan_protocol_debug_KeyValue: IUAVCANSerialize {
     public Single value = new Single();
     public uint8_t key_len; [MarshalAs(UnmanagedType.ByValArray,SizeConst=58)] public uint8_t[] key = new uint8_t[58];
 
-public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx) 
+public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {
 	encode_uavcan_protocol_debug_KeyValue(this, chunk_cb, ctx);
 }
@@ -41,4 +42,5 @@ public void decode(CanardRxTransfer transfer)
 
 };
 
+}
 }

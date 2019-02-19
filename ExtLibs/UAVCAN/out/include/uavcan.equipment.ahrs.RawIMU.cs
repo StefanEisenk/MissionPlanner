@@ -15,7 +15,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 //using uavcan.Timestamp.cs
@@ -35,7 +36,7 @@ public class uavcan_equipment_ahrs_RawIMU: IUAVCANSerialize {
     [MarshalAs(UnmanagedType.ByValArray,SizeConst=3)] public Single[] accelerometer_integral = new Single[3];
     public uint8_t covariance_len; [MarshalAs(UnmanagedType.ByValArray,SizeConst=36)] public Half[] covariance = new Half[36];
 
-public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx) 
+public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {
 	encode_uavcan_equipment_ahrs_RawIMU(this, chunk_cb, ctx);
 }
@@ -47,4 +48,5 @@ public void decode(CanardRxTransfer transfer)
 
 };
 
+}
 }

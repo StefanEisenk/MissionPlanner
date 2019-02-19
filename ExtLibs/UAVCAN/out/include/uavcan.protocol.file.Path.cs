@@ -15,7 +15,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 
@@ -29,7 +30,7 @@ public const double UAVCAN_PROTOCOL_FILE_PATH_SEPARATOR = 47; // saturated uint8
 public class uavcan_protocol_file_Path: IUAVCANSerialize {
     public uint8_t path_len; [MarshalAs(UnmanagedType.ByValArray,SizeConst=200)] public uint8_t[] path = new uint8_t[200];
 
-public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx) 
+public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {
 	encode_uavcan_protocol_file_Path(this, chunk_cb, ctx);
 }
@@ -41,4 +42,5 @@ public void decode(CanardRxTransfer transfer)
 
 };
 
+}
 }

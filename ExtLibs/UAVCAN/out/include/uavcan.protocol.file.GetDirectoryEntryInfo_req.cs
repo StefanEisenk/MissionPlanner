@@ -15,7 +15,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 //using uavcan.protocol.file.Path.cs
@@ -30,7 +31,7 @@ public class uavcan_protocol_file_GetDirectoryEntryInfo_req: IUAVCANSerialize {
     public uint32_t entry_index = new uint32_t();
     public uavcan_protocol_file_Path directory_path = new uavcan_protocol_file_Path();
 
-public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx) 
+public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {
 	encode_uavcan_protocol_file_GetDirectoryEntryInfo_req(this, chunk_cb, ctx);
 }
@@ -42,4 +43,5 @@ public void decode(CanardRxTransfer transfer)
 
 };
 
+}
 }

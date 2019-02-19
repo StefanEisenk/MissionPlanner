@@ -15,7 +15,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 
@@ -56,4 +57,5 @@ static void _decode_uavcan_protocol_file_Delete_res(CanardRxTransfer transfer,re
 
 }
 
+}
 }

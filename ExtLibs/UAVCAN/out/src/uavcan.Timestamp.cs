@@ -15,7 +15,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 
@@ -45,4 +46,5 @@ static void _decode_uavcan_Timestamp(CanardRxTransfer transfer,ref uint32_t bit_
 
 }
 
+}
 }

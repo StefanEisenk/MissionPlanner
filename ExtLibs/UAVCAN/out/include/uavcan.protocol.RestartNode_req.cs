@@ -15,7 +15,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 
@@ -30,7 +31,7 @@ public const double UAVCAN_PROTOCOL_RESTARTNODE_REQ_MAGIC_NUMBER = 742196058910;
 public class uavcan_protocol_RestartNode_req: IUAVCANSerialize {
     public uint64_t magic_number = new uint64_t();
 
-public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx) 
+public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {
 	encode_uavcan_protocol_RestartNode_req(this, chunk_cb, ctx);
 }
@@ -42,4 +43,5 @@ public void decode(CanardRxTransfer transfer)
 
 };
 
+}
 }

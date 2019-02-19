@@ -15,7 +15,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 //using uavcan.protocol.CANIfaceStats.cs
@@ -32,7 +33,7 @@ public class uavcan_protocol_GetTransportStats_res: IUAVCANSerialize {
     public uint64_t transfer_errors = new uint64_t();
     public uint8_t can_iface_stats_len; [MarshalAs(UnmanagedType.ByValArray,SizeConst=3)] public uavcan_protocol_CANIfaceStats[] can_iface_stats = new uavcan_protocol_CANIfaceStats[3];
 
-public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx) 
+public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {
 	encode_uavcan_protocol_GetTransportStats_res(this, chunk_cb, ctx);
 }
@@ -44,4 +45,5 @@ public void decode(CanardRxTransfer transfer)
 
 };
 
+}
 }

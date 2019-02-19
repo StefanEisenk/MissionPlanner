@@ -16,7 +16,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 @{
@@ -72,7 +73,7 @@ public class @(msg_c_type): IUAVCANSerialize {
 @[    end for]@
 @[  end if]@
 
-public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx) 
+public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {
 	encode_@(msg_c_type)(this, chunk_cb, ctx);
 }
@@ -84,4 +85,5 @@ public void decode(CanardRxTransfer transfer)
 
 };
 
+}
 }

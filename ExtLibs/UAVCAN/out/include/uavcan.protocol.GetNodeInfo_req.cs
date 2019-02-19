@@ -15,7 +15,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 
@@ -27,7 +28,7 @@ public const int UAVCAN_PROTOCOL_GETNODEINFO_REQ_DT_ID = 1;
 
 public class uavcan_protocol_GetNodeInfo_req: IUAVCANSerialize {
 
-public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx) 
+public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {
 	encode_uavcan_protocol_GetNodeInfo_req(this, chunk_cb, ctx);
 }
@@ -39,4 +40,5 @@ public void decode(CanardRxTransfer transfer)
 
 };
 
+}
 }

@@ -15,7 +15,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 
@@ -194,4 +195,5 @@ msg.ecef_position_velocity_len = 0;
 
 }
 
+}
 }

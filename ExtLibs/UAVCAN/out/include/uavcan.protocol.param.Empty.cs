@@ -15,7 +15,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 
@@ -26,7 +27,7 @@ public const ulong UAVCAN_PROTOCOL_PARAM_EMPTY_DT_SIG = 0x6C4D0E8EF37361DF;
 
 public class uavcan_protocol_param_Empty: IUAVCANSerialize {
 
-public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx) 
+public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {
 	encode_uavcan_protocol_param_Empty(this, chunk_cb, ctx);
 }
@@ -38,4 +39,5 @@ public void decode(CanardRxTransfer transfer)
 
 };
 
+}
 }

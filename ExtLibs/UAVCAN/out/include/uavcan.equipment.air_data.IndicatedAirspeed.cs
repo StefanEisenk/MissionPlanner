@@ -15,7 +15,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 
@@ -29,7 +30,7 @@ public class uavcan_equipment_air_data_IndicatedAirspeed: IUAVCANSerialize {
     public Half indicated_airspeed = new Half();
     public Half indicated_airspeed_variance = new Half();
 
-public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx) 
+public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {
 	encode_uavcan_equipment_air_data_IndicatedAirspeed(this, chunk_cb, ctx);
 }
@@ -41,4 +42,5 @@ public void decode(CanardRxTransfer transfer)
 
 };
 
+}
 }

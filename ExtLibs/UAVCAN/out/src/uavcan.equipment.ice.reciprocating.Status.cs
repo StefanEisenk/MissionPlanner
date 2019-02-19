@@ -15,7 +15,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 
@@ -240,4 +241,5 @@ msg.cylinder_status_len = 0;
 
 }
 
+}
 }

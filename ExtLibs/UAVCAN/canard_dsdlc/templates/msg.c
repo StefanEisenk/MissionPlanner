@@ -17,7 +17,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 
@@ -249,4 +250,5 @@ msg.@('union.' if msg_union else '')@(field.name)_len = 0;
 @[  end if]@
 }
 
+}
 }

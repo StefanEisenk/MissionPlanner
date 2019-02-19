@@ -15,7 +15,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 
@@ -40,7 +41,7 @@ public class uavcan_equipment_air_data_RawAirData: IUAVCANSerialize {
     public Half pitot_temperature = new Half();
     public uint8_t covariance_len; [MarshalAs(UnmanagedType.ByValArray,SizeConst=16)] public Half[] covariance = new Half[16];
 
-public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx) 
+public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {
 	encode_uavcan_equipment_air_data_RawAirData(this, chunk_cb, ctx);
 }
@@ -52,4 +53,5 @@ public void decode(CanardRxTransfer transfer)
 
 };
 
+}
 }

@@ -15,7 +15,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 
@@ -116,4 +117,5 @@ static void _decode_uavcan_equipment_esc_Status(CanardRxTransfer transfer,ref ui
 
 }
 
+}
 }

@@ -15,7 +15,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 //using uavcan.equipment.indication.RGB565.cs
@@ -40,7 +41,7 @@ public class uavcan_equipment_indication_SingleLightCommand: IUAVCANSerialize {
     public uint8_t light_id = new uint8_t();
     public uavcan_equipment_indication_RGB565 color = new uavcan_equipment_indication_RGB565();
 
-public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx) 
+public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {
 	encode_uavcan_equipment_indication_SingleLightCommand(this, chunk_cb, ctx);
 }
@@ -52,4 +53,5 @@ public void decode(CanardRxTransfer transfer)
 
 };
 
+}
 }

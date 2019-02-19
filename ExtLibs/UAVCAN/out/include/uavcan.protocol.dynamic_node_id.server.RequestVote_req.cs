@@ -15,7 +15,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 
@@ -30,7 +31,7 @@ public class uavcan_protocol_dynamic_node_id_server_RequestVote_req: IUAVCANSeri
     public uint32_t last_log_term = new uint32_t();
     public uint8_t last_log_index = new uint8_t();
 
-public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx) 
+public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {
 	encode_uavcan_protocol_dynamic_node_id_server_RequestVote_req(this, chunk_cb, ctx);
 }
@@ -42,4 +43,5 @@ public void decode(CanardRxTransfer transfer)
 
 };
 
+}
 }

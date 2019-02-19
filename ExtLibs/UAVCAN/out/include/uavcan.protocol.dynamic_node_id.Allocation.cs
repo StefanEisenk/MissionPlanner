@@ -15,7 +15,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 
@@ -38,7 +39,7 @@ public class uavcan_protocol_dynamic_node_id_Allocation: IUAVCANSerialize {
     public bool first_part_of_unique_id = new bool();
     public uint8_t unique_id_len; [MarshalAs(UnmanagedType.ByValArray,SizeConst=16)] public uint8_t[] unique_id = new uint8_t[16];
 
-public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx) 
+public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {
 	encode_uavcan_protocol_dynamic_node_id_Allocation(this, chunk_cb, ctx);
 }
@@ -50,4 +51,5 @@ public void decode(CanardRxTransfer transfer)
 
 };
 
+}
 }

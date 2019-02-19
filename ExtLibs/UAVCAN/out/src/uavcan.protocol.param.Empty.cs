@@ -15,7 +15,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 
@@ -39,4 +40,5 @@ static void _decode_uavcan_protocol_param_Empty(CanardRxTransfer transfer,ref ui
 
 }
 
+}
 }

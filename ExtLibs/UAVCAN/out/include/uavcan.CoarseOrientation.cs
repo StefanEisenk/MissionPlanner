@@ -15,7 +15,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 
@@ -30,7 +31,7 @@ public class uavcan_CoarseOrientation: IUAVCANSerialize {
     [MarshalAs(UnmanagedType.ByValArray,SizeConst=3)] public int8_t[] fixed_axis_roll_pitch_yaw = new int8_t[3];
     public bool orientation_defined = new bool();
 
-public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx) 
+public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {
 	encode_uavcan_CoarseOrientation(this, chunk_cb, ctx);
 }
@@ -42,4 +43,5 @@ public void decode(CanardRxTransfer transfer)
 
 };
 
+}
 }

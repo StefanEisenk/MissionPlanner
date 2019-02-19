@@ -15,7 +15,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 
@@ -86,4 +87,5 @@ static void _decode_uavcan_equipment_camera_gimbal_GEOPOICommand(CanardRxTransfe
 
 }
 
+}
 }

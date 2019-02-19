@@ -15,7 +15,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 
@@ -31,7 +32,7 @@ public const double UAVCAN_EQUIPMENT_SAFETY_ARMINGSTATUS_STATUS_FULLY_ARMED = 25
 public class uavcan_equipment_safety_ArmingStatus: IUAVCANSerialize {
     public uint8_t status = new uint8_t();
 
-public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx) 
+public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {
 	encode_uavcan_equipment_safety_ArmingStatus(this, chunk_cb, ctx);
 }
@@ -43,4 +44,5 @@ public void decode(CanardRxTransfer transfer)
 
 };
 
+}
 }

@@ -15,7 +15,8 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 
-
+namespace UAVCAN
+{
 public partial class uavcan {
 
 
@@ -32,7 +33,7 @@ public const double UAVCAN_EQUIPMENT_CAMERA_GIMBAL_MODE_COMMAND_MODE_GEO_POI = 3
 public class uavcan_equipment_camera_gimbal_Mode: IUAVCANSerialize {
     public uint8_t command_mode = new uint8_t();
 
-public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx) 
+public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {
 	encode_uavcan_equipment_camera_gimbal_Mode(this, chunk_cb, ctx);
 }
@@ -44,4 +45,5 @@ public void decode(CanardRxTransfer transfer)
 
 };
 
+}
 }
