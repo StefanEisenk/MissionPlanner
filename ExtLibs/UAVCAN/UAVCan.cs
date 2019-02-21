@@ -119,11 +119,11 @@ namespace UAVCAN
                 if (line_len == 0)
                     continue;
 
-                if (line[0] == 'T')
+                if (line[0] == 'T') // 29 bit data frame
                 {
                     id_len = 8;
                 }
-                else if (line[0] == 't')
+                else if (line[0] == 't') // 11 bit data frame
                 {
                     id_len = 3;
                 }
@@ -132,10 +132,12 @@ namespace UAVCAN
                     continue;
                 }
 
-                var packet_id = Convert.ToInt32(new string(line.Skip(1).Take(id_len).ToArray()), 16);
-                var frame = new CANFrame(BitConverter.GetBytes(packet_id));
-                var packet_len = line[1 + id_len] - 48;
+                //T12ABCDEF2AA55 : extended can_id 0x12ABCDEF, can_dlc 2, data 0xAA 0x55
+                var packet_id = Convert.ToInt32(new string(line.Skip(1).Take(id_len).ToArray()), 16); // id
+                var packet_len = line[1 + id_len] - 48; // dlc
                 var with_timestamp = line_len > (2 + id_len + packet_len * 2);
+
+                var frame = new CANFrame(BitConverter.GetBytes(packet_id));
 
                 var packet_data = line.Skip(2 + id_len).Take(packet_len * 2).NowNextBy2().Select(a =>
                 {
@@ -175,8 +177,6 @@ namespace UAVCAN
                     var msgtype = uavcan.MSG_INFO.First(a => a.Item2 == frame.MsgTypeID);
 
                     var dt_sig = BitConverter.GetBytes(msgtype.Item3);
-
-                    //Array.Reverse(dt_sig);
 
                     var startbyte = 0;
 
@@ -233,6 +233,10 @@ namespace UAVCAN
                     }
                     else
                     {
+                        //uavcan_equipment_air_data_StaticPressure
+                        //uavcan_equipment_air_data_StaticTemperature
+                        //uavcan_equipment_ahrs_MagneticFieldStrength
+
                         var type = uavcan.MSG_INFO.First(a => a.Item2 == frame.MsgTypeID).Item1;
 
                         Console.WriteLine(type);

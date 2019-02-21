@@ -9,9 +9,28 @@ namespace UAVCAN
     {
         private byte[] packet_data;
 
+        public enum FrameType
+        {
+            anonymous,
+            service,
+            message
+        }
+
         public CANFrame(byte[] packet_data)
         {
             this.packet_data = packet_data;
+        }
+
+        public FrameType TransferType
+        {
+            get
+            {
+                if (SourceNode == 0)
+                    return FrameType.anonymous;
+                if (IsServiceMsg)
+                    return FrameType.service;
+                return FrameType.message;
+            }
         }
 
         // message frame
@@ -20,7 +39,7 @@ namespace UAVCAN
         {
             get { return (byte)(packet_data[0] & 0x7f); }
         }
-        public bool isServiceMsg
+        public bool IsServiceMsg
         {
             get { return (packet_data[0] & 0x80) > 0; }
         }
@@ -36,15 +55,15 @@ namespace UAVCAN
         }
 
         // anon frame
-        public UInt16 Discriminator {
+        public UInt16 AnonDiscriminator {
             get { return BitConverter.ToUInt16(packet_data, 1); }
         }
 
         // service frame
         //0-127
-        public byte DestinationNode { get { return (byte)(packet_data[1] & 0x7f); } }
-        public bool isRequest { get { return (packet_data[1] & 0x80) > 0; } }
+        public byte SvcDestinationNode { get { return (byte)(packet_data[1] & 0x7f); } }
+        public bool SvcIsRequest { get { return (packet_data[1] & 0x80) > 0; } }
         //0-255
-        public byte ServiceType { get { return (byte)(packet_data[2]); } }
+        public byte SvcTypeID { get { return (byte)(packet_data[2]); } }
     }
 }
