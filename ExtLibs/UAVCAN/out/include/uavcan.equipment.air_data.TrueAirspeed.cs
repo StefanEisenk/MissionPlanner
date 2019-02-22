@@ -27,8 +27,8 @@ public const int UAVCAN_EQUIPMENT_AIR_DATA_TRUEAIRSPEED_DT_ID = 1020;
 
 
 public class uavcan_equipment_air_data_TrueAirspeed: IUAVCANSerialize {
-    public Half true_airspeed = new Half();
-    public Half true_airspeed_variance = new Half();
+    public Single true_airspeed = new Single();
+    public Single true_airspeed_variance = new Single();
 
 public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {

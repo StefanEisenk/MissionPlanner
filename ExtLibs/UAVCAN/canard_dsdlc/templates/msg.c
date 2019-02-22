@@ -15,7 +15,6 @@ using float32 = System.Single;
 
 using System;
 using System.Runtime.InteropServices;
-using OpenTK;
 
 namespace UAVCAN
 {

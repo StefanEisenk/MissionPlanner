@@ -27,8 +27,8 @@ public const int UAVCAN_EQUIPMENT_POWER_PRIMARYPOWERSUPPLYSTATUS_DT_ID = 1090;
 
 
 public class uavcan_equipment_power_PrimaryPowerSupplyStatus: IUAVCANSerialize {
-    public Half hours_to_empty_at_10sec_avg_power = new Half();
-    public Half hours_to_empty_at_10sec_avg_power_variance = new Half();
+    public Single hours_to_empty_at_10sec_avg_power = new Single();
+    public Single hours_to_empty_at_10sec_avg_power_variance = new Single();
     public bool external_power_available = new bool();
     public uint8_t remaining_energy_pct = new uint8_t();
     public uint8_t remaining_energy_pct_stdev = new uint8_t();

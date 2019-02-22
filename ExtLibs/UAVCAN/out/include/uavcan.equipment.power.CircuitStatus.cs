@@ -33,8 +33,8 @@ public const double UAVCAN_EQUIPMENT_POWER_CIRCUITSTATUS_ERROR_FLAG_UNDERCURRENT
 
 public class uavcan_equipment_power_CircuitStatus: IUAVCANSerialize {
     public uint16_t circuit_id = new uint16_t();
-    public Half voltage = new Half();
-    public Half current = new Half();
+    public Single voltage = new Single();
+    public Single current = new Single();
     public uint8_t error_flags = new uint8_t();
 
 public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)

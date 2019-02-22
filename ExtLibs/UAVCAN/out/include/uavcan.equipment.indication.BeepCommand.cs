@@ -27,8 +27,8 @@ public const int UAVCAN_EQUIPMENT_INDICATION_BEEPCOMMAND_DT_ID = 1080;
 
 
 public class uavcan_equipment_indication_BeepCommand: IUAVCANSerialize {
-    public Half frequency = new Half();
-    public Half duration = new Half();
+    public Single frequency = new Single();
+    public Single duration = new Single();
 
 public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {

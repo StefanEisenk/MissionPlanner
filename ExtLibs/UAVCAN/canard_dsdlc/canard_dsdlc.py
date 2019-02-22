@@ -123,7 +123,7 @@ if __name__ == '__main__':
 
     print 'test'
     with open('messages.cs', 'wb') as f:
-        f.write('using System;using OpenTK; namespace UAVCAN {public partial class uavcan { public static readonly (Type,UInt16, ulong)[] MSG_INFO = {'+message_names_enum+'};}}')
+        f.write('using System; namespace UAVCAN {public partial class uavcan { public static readonly (Type,UInt16, ulong)[] MSG_INFO = {'+message_names_enum+'};}}')
 
     print message_names_enum
 

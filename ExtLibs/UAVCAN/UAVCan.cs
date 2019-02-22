@@ -7,6 +7,7 @@ using System.Net;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using Newtonsoft.Json;
 using OpenTK;
 
 namespace UAVCAN
@@ -69,8 +70,8 @@ namespace UAVCAN
                 latitude_deg_1e8 = 6,
                 longitude_deg_1e8 = 7,
                 num_leap_seconds = 17,
-                pdop = new Half(8),
-                sats_used = 10, ned_velocity = new[] {new Half(1), new Half(2), new Half(3)}, status = 3
+                pdop = 8f,
+                sats_used = 10, ned_velocity = new[] {1f,2f,3f}, status = 3
             };
 
             testconversion((byte) 3, 3, false);
@@ -110,13 +111,14 @@ namespace UAVCAN
 
             // need sourcenode, msgid, transfer id
 
-            Dictionary<(byte, int, int), List<byte>> transfer = new Dictionary<(byte, int, int), List<byte>>();
-
+            Dictionary<(uint, int), List<byte>> transfer = new Dictionary<(uint, int), List<byte>>();
+            int l = 0;
             foreach (var line in lines)
             {
+                l++;
                 var line_len = line.Length;
 
-                if (line_len == 0)
+                if (line_len <= 4)
                     continue;
 
                 if (line[0] == 'T') // 29 bit data frame
@@ -133,7 +135,7 @@ namespace UAVCAN
                 }
 
                 //T12ABCDEF2AA55 : extended can_id 0x12ABCDEF, can_dlc 2, data 0xAA 0x55
-                var packet_id = Convert.ToInt32(new string(line.Skip(1).Take(id_len).ToArray()), 16); // id
+                var packet_id = Convert.ToUInt32(new string(line.Skip(1).Take(id_len).ToArray()), 16); // id
                 var packet_len = line[1 + id_len] - 48; // dlc
                 var with_timestamp = line_len > (2 + id_len + packet_len * 2);
 
@@ -149,13 +151,13 @@ namespace UAVCAN
                 var payload = new CANPayload(packet_data.ToArray());
 
                 if (payload.SOT)
-                    transfer[(frame.SourceNode, frame.MsgTypeID, payload.TransferID)] = new List<byte>();
+                    transfer[(packet_id, payload.TransferID)] = new List<byte>();
 
                 // if have not seen SOT, abort
-                if (!transfer.ContainsKey((frame.SourceNode, frame.MsgTypeID, payload.TransferID)))
+                if (!transfer.ContainsKey((packet_id, payload.TransferID)))
                     continue;
 
-                transfer[(frame.SourceNode, frame.MsgTypeID, payload.TransferID)].AddRange(payload.Payload);
+                transfer[(packet_id, payload.TransferID)].AddRange(payload.Payload);
 
                 //todo check toggle
 
@@ -167,14 +169,51 @@ namespace UAVCAN
 
                 if (payload.EOT)
                 {
-                    var result = transfer[(frame.SourceNode, frame.MsgTypeID, payload.TransferID)].ToArray();
+                    var result = transfer[(packet_id, payload.TransferID)].ToArray();
 
-                    transfer.Remove((frame.SourceNode, frame.MsgTypeID, payload.TransferID));
+                    transfer.Remove((packet_id, payload.TransferID));
 
-                    if (!uavcan.MSG_INFO.Any(a => a.Item2 == frame.MsgTypeID))
-                        continue;
+                    if (frame.TransferType == CANFrame.FrameType.anonymous)
+                    {
+                        // dynamic node allocation
+                        if (!uavcan.MSG_INFO.Any(a =>
+                            a.Item2 == frame.MsgTypeID && frame.TransferType == CANFrame.FrameType.anonymous &&
+                            !a.Item1.Name.EndsWith("_req") && !a.Item1.Name.EndsWith("_res")))
+                        {
+                            Console.WriteLine("No Message ID " + frame.SvcTypeID);
+                            continue;
+                        }
+                    }
 
-                    var msgtype = uavcan.MSG_INFO.First(a => a.Item2 == frame.MsgTypeID);
+                    if (frame.TransferType == CANFrame.FrameType.service)
+                    {
+                        if (!uavcan.MSG_INFO.Any(a =>
+                            a.Item2 == frame.SvcTypeID && frame.TransferType == CANFrame.FrameType.service))
+                        {
+                            Console.WriteLine("No Message ID " + frame.SvcTypeID);
+                            continue;
+                        }
+                    }
+
+                    if (frame.TransferType == CANFrame.FrameType.message)
+                    {
+                        if (!uavcan.MSG_INFO.Any(a =>
+                            a.Item2 == frame.MsgTypeID && frame.TransferType == CANFrame.FrameType.message))
+                        {
+                            Console.WriteLine("No Message ID " + frame.MsgTypeID);
+                            continue;
+                        }
+                    }
+
+                    var msgtype = uavcan.MSG_INFO.First(a =>
+                        a.Item2 == frame.MsgTypeID && frame.TransferType == CANFrame.FrameType.message &&
+                        !a.Item1.Name.EndsWith("_req") && !a.Item1.Name.EndsWith("_res") ||
+                        a.Item2 == frame.MsgTypeID && frame.TransferType == CANFrame.FrameType.anonymous &&
+                        !a.Item1.Name.EndsWith("_req") && !a.Item1.Name.EndsWith("_res") ||
+                        a.Item2 == frame.SvcTypeID && frame.TransferType == CANFrame.FrameType.service &&
+                        frame.SvcIsRequest && a.Item1.Name.EndsWith("_req") ||
+                        a.Item2 == frame.SvcTypeID && frame.TransferType == CANFrame.FrameType.service &&
+                        !frame.SvcIsRequest && a.Item1.Name.EndsWith("_res"));
 
                     var dt_sig = BitConverter.GetBytes(msgtype.Item3);
 
@@ -183,6 +222,9 @@ namespace UAVCAN
                     if (!payload.SOT && payload.EOT)
                     {
                         startbyte = 2;
+
+                        if (result.Length <= 1)
+                            continue;
 
                         var payload_crc = result[0] | result[1] << 8;
 
@@ -199,59 +241,24 @@ namespace UAVCAN
                     }
                     else
                     {
-
                     }
 
-                    if (frame.MsgTypeID == uavcan.COM_HEX_EQUIPMENT_FLOW_MEASUREMENT_DT_ID)
-                    {
-                        var ans = result.ByteArrayToUAVCANMsg<uavcan.com_hex_equipment_flow_Measurement>(startbyte);
-                    }
-                    else if (frame.MsgTypeID == uavcan.UAVCAN_PROTOCOL_NODESTATUS_DT_ID)
-                    {
-                        try
-                        {
-                            var ans = result.ByteArrayToUAVCANMsg<uavcan.uavcan_protocol_GetNodeInfo_req>(startbyte);
-                        }
-                        catch
-                        {
-                        }
-                    }
-                    else if (frame.MsgTypeID == uavcan.UAVCAN_EQUIPMENT_RANGE_SENSOR_MEASUREMENT_DT_ID)
-                    {
-                        var ans =
-                            result.ByteArrayToUAVCANMsg<uavcan.uavcan_equipment_range_sensor_Measurement>(startbyte);
-                    }
-                    else if (frame.MsgTypeID == uavcan.UAVCAN_EQUIPMENT_GNSS_FIX_DT_ID)
-                    {
-                        try
-                        {
-                            var ans = result.ByteArrayToUAVCANMsg<uavcan.uavcan_equipment_gnss_Fix>(startbyte);
-                        }
-                        catch
-                        {
-                        }
-                    }
-                    else
-                    {
-                        //uavcan_equipment_air_data_StaticPressure
-                        //uavcan_equipment_air_data_StaticTemperature
-                        //uavcan_equipment_ahrs_MagneticFieldStrength
+                    //Console.WriteLine(msgtype);
 
-                        var type = uavcan.MSG_INFO.First(a => a.Item2 == frame.MsgTypeID).Item1;
-
-                        Console.WriteLine(type);
-
-                        MethodInfo method = typeof(Extension).GetMethod("ByteArrayToUAVCANMsg");
-                        MethodInfo generic = method.MakeGenericMethod(type);
+                    MethodInfo method = typeof(Extension).GetMethod("ByteArrayToUAVCANMsg");
+                    MethodInfo generic = method.MakeGenericMethod(msgtype.Item1);
+                    try
+                    {
                         var ans = generic.Invoke(null, new object[] {result, startbyte});
 
-                        Console.WriteLine(ans);
+                        Console.WriteLine((frame.SourceNode == 127 ? "TX" : "RX") + " " + msgtype.Item1 + " " + JsonConvert.SerializeObject(ans));
+                    }
+                    catch
+                    {
                     }
                 }
             }
         }
-
-
 
         private static void chunk_cb(byte[] buffer, int sizeinbits, object ctx)
         {
@@ -275,6 +282,4 @@ namespace UAVCAN
             stuff.bit += sizeinbits;
         }
     }
-
-    // 29bit
 }

@@ -40,13 +40,13 @@ public const double UAVCAN_EQUIPMENT_POWER_BATTERYINFO_STATUS_FLAG_RESERVED_B = 
 public const double UAVCAN_EQUIPMENT_POWER_BATTERYINFO_STATE_OF_HEALTH_UNKNOWN = 127; // saturated uint7
 
 public class uavcan_equipment_power_BatteryInfo: IUAVCANSerialize {
-    public Half temperature = new Half();
-    public Half voltage = new Half();
-    public Half current = new Half();
-    public Half average_power_10sec = new Half();
-    public Half remaining_capacity_wh = new Half();
-    public Half full_charge_capacity_wh = new Half();
-    public Half hours_to_full_charge = new Half();
+    public Single temperature = new Single();
+    public Single voltage = new Single();
+    public Single current = new Single();
+    public Single average_power_10sec = new Single();
+    public Single remaining_capacity_wh = new Single();
+    public Single full_charge_capacity_wh = new Single();
+    public Single hours_to_full_charge = new Single();
     public uint16_t status_flags = new uint16_t();
     public uint8_t state_of_health_pct = new uint8_t();
     public uint8_t state_of_charge_pct = new uint8_t();

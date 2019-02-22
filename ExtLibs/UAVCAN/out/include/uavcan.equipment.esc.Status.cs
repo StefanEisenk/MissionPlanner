@@ -28,9 +28,9 @@ public const int UAVCAN_EQUIPMENT_ESC_STATUS_DT_ID = 1034;
 
 public class uavcan_equipment_esc_Status: IUAVCANSerialize {
     public uint32_t error_count = new uint32_t();
-    public Half voltage = new Half();
-    public Half current = new Half();
-    public Half temperature = new Half();
+    public Single voltage = new Single();
+    public Single current = new Single();
+    public Single temperature = new Single();
     public int32_t rpm = new int32_t();
     public uint8_t power_rating_pct = new uint8_t();
     public uint8_t esc_index = new uint8_t();

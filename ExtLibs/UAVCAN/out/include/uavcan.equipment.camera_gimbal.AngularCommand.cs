@@ -30,7 +30,7 @@ public const int UAVCAN_EQUIPMENT_CAMERA_GIMBAL_ANGULARCOMMAND_DT_ID = 1040;
 public class uavcan_equipment_camera_gimbal_AngularCommand: IUAVCANSerialize {
     public uint8_t gimbal_id = new uint8_t();
     public uavcan_equipment_camera_gimbal_Mode mode = new uavcan_equipment_camera_gimbal_Mode();
-    [MarshalAs(UnmanagedType.ByValArray,SizeConst=4)] public Half[] quaternion_xyzw = new Half[4];
+    [MarshalAs(UnmanagedType.ByValArray,SizeConst=4)] public Single[] quaternion_xyzw = new Single[4];
 
 public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {

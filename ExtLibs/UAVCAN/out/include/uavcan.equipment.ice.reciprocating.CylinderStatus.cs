@@ -26,11 +26,11 @@ public const ulong UAVCAN_EQUIPMENT_ICE_RECIPROCATING_CYLINDERSTATUS_DT_SIG = 0x
 
 
 public class uavcan_equipment_ice_reciprocating_CylinderStatus: IUAVCANSerialize {
-    public Half ignition_timing_deg = new Half();
-    public Half injection_time_ms = new Half();
-    public Half cylinder_head_temperature = new Half();
-    public Half exhaust_gas_temperature = new Half();
-    public Half lambda_coefficient = new Half();
+    public Single ignition_timing_deg = new Single();
+    public Single injection_time_ms = new Single();
+    public Single cylinder_head_temperature = new Single();
+    public Single exhaust_gas_temperature = new Single();
+    public Single lambda_coefficient = new Single();
 
 public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {

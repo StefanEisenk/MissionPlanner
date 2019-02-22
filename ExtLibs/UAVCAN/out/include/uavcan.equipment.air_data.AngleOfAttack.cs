@@ -31,8 +31,8 @@ public const double UAVCAN_EQUIPMENT_AIR_DATA_ANGLEOFATTACK_SENSOR_ID_RIGHT = 25
 
 public class uavcan_equipment_air_data_AngleOfAttack: IUAVCANSerialize {
     public uint8_t sensor_id = new uint8_t();
-    public Half aoa = new Half();
-    public Half aoa_variance = new Half();
+    public Single aoa = new Single();
+    public Single aoa_variance = new Single();
 
 public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {

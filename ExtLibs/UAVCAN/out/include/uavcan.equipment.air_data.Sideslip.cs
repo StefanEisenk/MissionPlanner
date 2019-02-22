@@ -27,8 +27,8 @@ public const int UAVCAN_EQUIPMENT_AIR_DATA_SIDESLIP_DT_ID = 1026;
 
 
 public class uavcan_equipment_air_data_Sideslip: IUAVCANSerialize {
-    public Half sideslip_angle = new Half();
-    public Half sideslip_angle_variance = new Half();
+    public Single sideslip_angle = new Single();
+    public Single sideslip_angle_variance = new Single();
 
 public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {

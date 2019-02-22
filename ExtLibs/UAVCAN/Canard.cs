@@ -399,13 +399,14 @@ namespace UAVCAN
 
         private static UInt16 canardConvertNativeFloatToFloat16(Single flo)
         {
-            return BitConverter.ToUInt16(Half.GetBytes(new Half(flo)), 0);
+            var bad = make_float16(flo);
+            return bad;
         }
 
-
-        private static Half canardConvertFloat16ToNativeFloat(ushort float16Val)
+        private static Single canardConvertFloat16ToNativeFloat(ushort float16Val)
         {
-            return Half.FromBytes(BitConverter.GetBytes(float16Val), 0);
+            var bad = float16_to_float32(float16Val);
+            return bad;
         }
 
         [StructLayout(LayoutKind.Explicit, Pack = 1)]
@@ -417,6 +418,46 @@ namespace UAVCAN
             public static implicit operator fp32(uint v)
             {
                 return new fp32() {u = v};
+            }
+        }
+
+        private static float float16_to_float32(ushort h)
+        {
+            fp32 ans = 0;
+            UInt16 h_exp, h_sig;
+            UInt32 f_sgn, f_exp, f_sig;
+
+            h_exp = (UInt16)(h & 0x7c00u);
+            f_sgn = ((UInt32)h & 0x8000u) << 16;
+            switch (h_exp)
+            {
+                case 0x0000: /* 0 or subnormal */
+                    h_sig = (UInt16)(h & 0x03ffu);
+                    /* Signed zero */
+                    if (h_sig == 0)
+                    {
+                        ans= f_sgn;
+                        return ans.f;
+                    }
+                    /* Subnormal */
+                    h_sig <<= 1;
+                    while ((h_sig & 0x0400u) == 0)
+                    {
+                        h_sig <<= 1;
+                        h_exp++;
+                    }
+                    f_exp = ((UInt32)(127 - 15 - h_exp)) << 23;
+                    f_sig = ((UInt32)(h_sig & 0x03ffu)) << 13;
+                    ans= f_sgn + f_exp + f_sig;
+                    return ans.f;
+                case 0x7c00: /* inf or NaN */
+                    /* All-ones exponent and a copy of the significand */
+                    ans= f_sgn + 0x7f800000u + (((UInt32)(h & 0x03ffu)) << 13);
+                    return ans.f;
+                default: /* normalized */
+                    /* Just need to adjust the exponent and shift */
+                    ans= f_sgn + (((UInt32)(h & 0x7fffu) + 0x1c000u) << 13);
+                    return ans.f;
             }
         }
 

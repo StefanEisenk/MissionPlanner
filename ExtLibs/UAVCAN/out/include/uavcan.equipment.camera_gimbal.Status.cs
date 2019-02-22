@@ -30,8 +30,8 @@ public const int UAVCAN_EQUIPMENT_CAMERA_GIMBAL_STATUS_DT_ID = 1044;
 public class uavcan_equipment_camera_gimbal_Status: IUAVCANSerialize {
     public uint8_t gimbal_id = new uint8_t();
     public uavcan_equipment_camera_gimbal_Mode mode = new uavcan_equipment_camera_gimbal_Mode();
-    [MarshalAs(UnmanagedType.ByValArray,SizeConst=4)] public Half[] camera_orientation_in_body_frame_xyzw = new Half[4];
-    public uint8_t camera_orientation_in_body_frame_covariance_len; [MarshalAs(UnmanagedType.ByValArray,SizeConst=9)] public Half[] camera_orientation_in_body_frame_covariance = new Half[9];
+    [MarshalAs(UnmanagedType.ByValArray,SizeConst=4)] public Single[] camera_orientation_in_body_frame_xyzw = new Single[4];
+    public uint8_t camera_orientation_in_body_frame_covariance_len; [MarshalAs(UnmanagedType.ByValArray,SizeConst=9)] public Single[] camera_orientation_in_body_frame_covariance = new Single[9];
 
 public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {

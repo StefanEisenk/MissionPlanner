@@ -29,12 +29,12 @@ public const int UAVCAN_EQUIPMENT_AHRS_SOLUTION_DT_ID = 1000;
 
 public class uavcan_equipment_ahrs_Solution: IUAVCANSerialize {
     public uavcan_Timestamp timestamp = new uavcan_Timestamp();
-    [MarshalAs(UnmanagedType.ByValArray,SizeConst=4)] public Half[] orientation_xyzw = new Half[4];
-    public uint8_t orientation_covariance_len; [MarshalAs(UnmanagedType.ByValArray,SizeConst=9)] public Half[] orientation_covariance = new Half[9];
-    [MarshalAs(UnmanagedType.ByValArray,SizeConst=3)] public Half[] angular_velocity = new Half[3];
-    public uint8_t angular_velocity_covariance_len; [MarshalAs(UnmanagedType.ByValArray,SizeConst=9)] public Half[] angular_velocity_covariance = new Half[9];
-    [MarshalAs(UnmanagedType.ByValArray,SizeConst=3)] public Half[] linear_acceleration = new Half[3];
-    public uint8_t linear_acceleration_covariance_len; [MarshalAs(UnmanagedType.ByValArray,SizeConst=9)] public Half[] linear_acceleration_covariance = new Half[9];
+    [MarshalAs(UnmanagedType.ByValArray,SizeConst=4)] public Single[] orientation_xyzw = new Single[4];
+    public uint8_t orientation_covariance_len; [MarshalAs(UnmanagedType.ByValArray,SizeConst=9)] public Single[] orientation_covariance = new Single[9];
+    [MarshalAs(UnmanagedType.ByValArray,SizeConst=3)] public Single[] angular_velocity = new Single[3];
+    public uint8_t angular_velocity_covariance_len; [MarshalAs(UnmanagedType.ByValArray,SizeConst=9)] public Single[] angular_velocity_covariance = new Single[9];
+    [MarshalAs(UnmanagedType.ByValArray,SizeConst=3)] public Single[] linear_acceleration = new Single[3];
+    public uint8_t linear_acceleration_covariance_len; [MarshalAs(UnmanagedType.ByValArray,SizeConst=9)] public Single[] linear_acceleration_covariance = new Single[9];
 
 public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {

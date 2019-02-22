@@ -37,33 +37,57 @@ namespace UAVCAN
         //0-127
         public byte SourceNode
         {
-            get { return (byte)(packet_data[0] & 0x7f); }
+            get { return (byte) (packet_data[0] & 0x7f); }
         }
+
         public bool IsServiceMsg
         {
             get { return (packet_data[0] & 0x80) > 0; }
         }
+
         // 0 - 65535    anon 0-3
         public UInt16 MsgTypeID
         {
-            get { return BitConverter.ToUInt16(packet_data, 1); }
+            get
+            {
+                if (TransferType == FrameType.anonymous) return (UInt16)(BitConverter.ToUInt16(packet_data, 1) & 0x3);
+                if (TransferType == FrameType.message) return BitConverter.ToUInt16(packet_data, 1);
+                return SvcTypeID;
+            }
         }
+
         // 0-31 high-low
         public byte Priority
         {
-            get { return (byte)(packet_data[3] & 0x1f); }
+            get { return (byte) (packet_data[3] & 0x1f); }
         }
 
         // anon frame
-        public UInt16 AnonDiscriminator {
-            get { return BitConverter.ToUInt16(packet_data, 1); }
+        public UInt16 AnonDiscriminator
+        {
+            get { return (UInt16)(BitConverter.ToUInt16(packet_data, 1) >> 2); }
         }
 
         // service frame
         //0-127
-        public byte SvcDestinationNode { get { return (byte)(packet_data[1] & 0x7f); } }
-        public bool SvcIsRequest { get { return (packet_data[1] & 0x80) > 0; } }
+        public byte SvcDestinationNode
+        {
+            get { return (byte) (packet_data[1] & 0x7f); }
+        }
+
+        public bool SvcIsRequest
+        {
+            get { return (packet_data[1] & 0x80) > 0; }
+        }
+
         //0-255
-        public byte SvcTypeID { get { return (byte)(packet_data[2]); } }
+        public byte SvcTypeID
+        {
+            get
+            {
+                if (TransferType == FrameType.service) return (byte) (packet_data[2]);
+                return 0;
+            }
+        }
     }
 }

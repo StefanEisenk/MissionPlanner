@@ -27,13 +27,13 @@ public const int UAVCAN_EQUIPMENT_GNSS_AUXILIARY_DT_ID = 1061;
 
 
 public class uavcan_equipment_gnss_Auxiliary: IUAVCANSerialize {
-    public Half gdop = new Half();
-    public Half pdop = new Half();
-    public Half hdop = new Half();
-    public Half vdop = new Half();
-    public Half tdop = new Half();
-    public Half ndop = new Half();
-    public Half edop = new Half();
+    public Single gdop = new Single();
+    public Single pdop = new Single();
+    public Single hdop = new Single();
+    public Single vdop = new Single();
+    public Single tdop = new Single();
+    public Single ndop = new Single();
+    public Single edop = new Single();
     public uint8_t sats_visible = new uint8_t();
     public uint8_t sats_used = new uint8_t();
 

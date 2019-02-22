@@ -30,9 +30,9 @@ public const double UAVCAN_EQUIPMENT_ACTUATOR_STATUS_POWER_RATING_PCT_UNKNOWN = 
 
 public class uavcan_equipment_actuator_Status: IUAVCANSerialize {
     public uint8_t actuator_id = new uint8_t();
-    public Half position = new Half();
-    public Half force = new Half();
-    public Half speed = new Half();
+    public Single position = new Single();
+    public Single force = new Single();
+    public Single speed = new Single();
     public uint8_t power_rating_pct = new uint8_t();
 
 public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)

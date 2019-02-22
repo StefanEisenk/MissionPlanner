@@ -28,7 +28,7 @@ public const int UAVCAN_EQUIPMENT_AIR_DATA_STATICPRESSURE_DT_ID = 1028;
 
 public class uavcan_equipment_air_data_StaticPressure: IUAVCANSerialize {
     public Single static_pressure = new Single();
-    public Half static_pressure_variance = new Half();
+    public Single static_pressure_variance = new Single();
 
 public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {

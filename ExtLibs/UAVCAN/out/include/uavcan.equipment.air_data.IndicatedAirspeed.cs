@@ -27,8 +27,8 @@ public const int UAVCAN_EQUIPMENT_AIR_DATA_INDICATEDAIRSPEED_DT_ID = 1021;
 
 
 public class uavcan_equipment_air_data_IndicatedAirspeed: IUAVCANSerialize {
-    public Half indicated_airspeed = new Half();
-    public Half indicated_airspeed_variance = new Half();
+    public Single indicated_airspeed = new Single();
+    public Single indicated_airspeed_variance = new Single();
 
 public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {

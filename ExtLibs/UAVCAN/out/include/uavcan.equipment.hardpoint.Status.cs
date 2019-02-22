@@ -28,8 +28,8 @@ public const int UAVCAN_EQUIPMENT_HARDPOINT_STATUS_DT_ID = 1071;
 
 public class uavcan_equipment_hardpoint_Status: IUAVCANSerialize {
     public uint8_t hardpoint_id = new uint8_t();
-    public Half payload_weight = new Half();
-    public Half payload_weight_variance = new Half();
+    public Single payload_weight = new Single();
+    public Single payload_weight_variance = new Single();
     public uint16_t status = new uint16_t();
 
 public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)

@@ -35,11 +35,11 @@ public class uavcan_equipment_air_data_RawAirData: IUAVCANSerialize {
     public uint8_t flags = new uint8_t();
     public Single static_pressure = new Single();
     public Single differential_pressure = new Single();
-    public Half static_pressure_sensor_temperature = new Half();
-    public Half differential_pressure_sensor_temperature = new Half();
-    public Half static_air_temperature = new Half();
-    public Half pitot_temperature = new Half();
-    public uint8_t covariance_len; [MarshalAs(UnmanagedType.ByValArray,SizeConst=16)] public Half[] covariance = new Half[16];
+    public Single static_pressure_sensor_temperature = new Single();
+    public Single differential_pressure_sensor_temperature = new Single();
+    public Single static_air_temperature = new Single();
+    public Single pitot_temperature = new Single();
+    public uint8_t covariance_len; [MarshalAs(UnmanagedType.ByValArray,SizeConst=16)] public Single[] covariance = new Single[16];
 
 public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {

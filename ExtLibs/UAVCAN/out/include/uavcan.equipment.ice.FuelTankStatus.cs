@@ -30,7 +30,7 @@ public class uavcan_equipment_ice_FuelTankStatus: IUAVCANSerialize {
     public uint8_t available_fuel_volume_percent = new uint8_t();
     public Single available_fuel_volume_cm3 = new Single();
     public Single fuel_consumption_rate_cm3pm = new Single();
-    public Half fuel_temperature = new Half();
+    public Single fuel_temperature = new Single();
     public uint8_t fuel_tank_id = new uint8_t();
 
 public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)

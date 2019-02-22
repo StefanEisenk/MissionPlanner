@@ -27,8 +27,8 @@ public const int UAVCAN_EQUIPMENT_AIR_DATA_STATICTEMPERATURE_DT_ID = 1029;
 
 
 public class uavcan_equipment_air_data_StaticTemperature: IUAVCANSerialize {
-    public Half static_temperature = new Half();
-    public Half static_temperature_variance = new Half();
+    public Single static_temperature = new Single();
+    public Single static_temperature_variance = new Single();
 
 public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {

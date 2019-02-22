@@ -31,7 +31,7 @@ public const double UAVCAN_EQUIPMENT_DEVICE_TEMPERATURE_ERROR_FLAG_OVERCOOLING =
 
 public class uavcan_equipment_device_Temperature: IUAVCANSerialize {
     public uint16_t device_id = new uint16_t();
-    public Half temperature = new Half();
+    public Single temperature = new Single();
     public uint8_t error_flags = new uint8_t();
 
 public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)

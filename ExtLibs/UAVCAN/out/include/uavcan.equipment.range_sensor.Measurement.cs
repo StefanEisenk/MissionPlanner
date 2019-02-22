@@ -41,10 +41,10 @@ public class uavcan_equipment_range_sensor_Measurement: IUAVCANSerialize {
     public uavcan_Timestamp timestamp = new uavcan_Timestamp();
     public uint8_t sensor_id = new uint8_t();
     public uavcan_CoarseOrientation beam_orientation_in_body_frame = new uavcan_CoarseOrientation();
-    public Half field_of_view = new Half();
+    public Single field_of_view = new Single();
     public uint8_t sensor_type = new uint8_t();
     public uint8_t reading_type = new uint8_t();
-    public Half range = new Half();
+    public Single range = new Single();
 
 public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {

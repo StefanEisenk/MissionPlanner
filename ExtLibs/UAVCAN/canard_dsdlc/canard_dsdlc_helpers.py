@@ -104,7 +104,7 @@ def uavcan_type_to_ctype(uavcan_type):
         elif uavcan_type.kind == uavcan_type.KIND_SIGNED_INT:
             return c_int_type_from_bitlen(uavcan_type.bitlen)
         elif uavcan_type.kind == uavcan_type.KIND_FLOAT:
-            if uavcan_type.bitlen <= 16: return 'Half'
+            if uavcan_type.bitlen <= 16: return 'Single'
             if uavcan_type.bitlen <= 32: return 'Single'
             if uavcan_type.bitlen <= 64: return 'Double'
 

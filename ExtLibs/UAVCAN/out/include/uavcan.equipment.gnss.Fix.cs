@@ -46,12 +46,12 @@ public class uavcan_equipment_gnss_Fix: IUAVCANSerialize {
     public int64_t latitude_deg_1e8 = new int64_t();
     public int32_t height_ellipsoid_mm = new int32_t();
     public int32_t height_msl_mm = new int32_t();
-    [MarshalAs(UnmanagedType.ByValArray,SizeConst=3)] public Half[] ned_velocity = new Half[3];
+    [MarshalAs(UnmanagedType.ByValArray,SizeConst=3)] public Single[] ned_velocity = new Single[3];
     public uint8_t sats_used = new uint8_t();
     public uint8_t status = new uint8_t();
-    public Half pdop = new Half();
-    public uint8_t position_covariance_len; [MarshalAs(UnmanagedType.ByValArray,SizeConst=9)] public Half[] position_covariance = new Half[9];
-    public uint8_t velocity_covariance_len; [MarshalAs(UnmanagedType.ByValArray,SizeConst=9)] public Half[] velocity_covariance = new Half[9];
+    public Single pdop = new Single();
+    public uint8_t position_covariance_len; [MarshalAs(UnmanagedType.ByValArray,SizeConst=9)] public Single[] position_covariance = new Single[9];
+    public uint8_t velocity_covariance_len; [MarshalAs(UnmanagedType.ByValArray,SizeConst=9)] public Single[] velocity_covariance = new Single[9];
 
 public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)
 {
