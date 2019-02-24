@@ -65,11 +65,11 @@ namespace UAVCAN
         public void StartSLCAN(Stream stream)
         {
             stream.Write(new byte[] { (byte)'O', (byte)'\r' }, 0, 2);
+            sr = new StreamReader(stream);
 
             // read everything
             Task.Run(() =>
             {
-                sr = new StreamReader(stream);
                 while (!sr.EndOfStream)
                 {
                     var line = sr.ReadLine();
