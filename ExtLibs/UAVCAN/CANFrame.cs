@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace UAVCAN
 {
@@ -38,11 +39,13 @@ namespace UAVCAN
         public byte SourceNode
         {
             get { return (byte) (packet_data[0] & 0x7f); }
+            set { packet_data[0] = (byte) ((packet_data[0] & (~0x7f)) | (value & 0x7f)); }
         }
 
         public bool IsServiceMsg
         {
             get { return (packet_data[0] & 0x80) > 0; }
+            set { packet_data[0] = (byte) ((packet_data[0] & (~0x80)) | (value ? 0x80 : 0x0)); }
         }
 
         // 0 - 65535    anon 0-3
@@ -54,12 +57,18 @@ namespace UAVCAN
                 if (TransferType == FrameType.message) return BitConverter.ToUInt16(packet_data, 1);
                 return SvcTypeID;
             }
+            set
+            {
+                packet_data[1] = (byte)value;
+                packet_data[2] = (byte)(value >> 8);
+            }
         }
 
         // 0-31 high-low
         public byte Priority
         {
             get { return (byte) (packet_data[3] & 0x1f); }
+            set { packet_data[3] = (byte)((packet_data[3] & (~0x1f)) | (value & 0x1f)); }
         }
 
         // anon frame
@@ -73,11 +82,13 @@ namespace UAVCAN
         public byte SvcDestinationNode
         {
             get { return (byte) (packet_data[1] & 0x7f); }
+            set { packet_data[1] = (byte)((packet_data[1] & (~0x7f)) | (value & 0x7f)); }
         }
 
         public bool SvcIsRequest
         {
             get { return (packet_data[1] & 0x80) > 0; }
+            set { packet_data[1] = (byte)((packet_data[1] & (~0x80)) | (value ? 0x80 : 0x0)); }
         }
 
         //0-255
@@ -88,6 +99,18 @@ namespace UAVCAN
                 if (TransferType == FrameType.service) return (byte) (packet_data[2]);
                 return 0;
             }
+            set { packet_data[2] = value; }
+        }
+
+        public string ToHex()
+        {
+            var ans = "";
+            foreach (var b in packet_data.Reverse())
+            {
+                ans += b.ToString("X2");
+            }
+
+            return ans;
         }
     }
 }

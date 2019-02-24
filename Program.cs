@@ -62,7 +62,22 @@ namespace MissionPlanner
         {
             try
             {
-                UAVCAN.UAVCAN.test();
+                //UAVCAN.UAVCAN.test();
+
+                UAVCAN.UAVCAN can = new UAVCAN.UAVCAN();
+
+                ICommsSerial port = new SerialPort() {NewLine = "\r"};
+                port.PortName = "com8";
+                port.BaudRate = 115200;
+                port.ReadBufferSize = 1024 * 20;
+                port.Open();
+
+                //clear buffer
+                port.ReadExisting();
+
+                can.StartSLCAN(port.BaseStream);
+
+                can.update(@"C:\Users\michael\Desktop\Hex\Here2\build\com.hex.here+_2.0\Here2-crc.bin");
             } catch { }
             
 

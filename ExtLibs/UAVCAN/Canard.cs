@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using OpenTK;
 
 namespace UAVCAN
 {
@@ -122,7 +121,7 @@ namespace UAVCAN
             if (bit_length == 1)
             {
                 std_byte_length = sizeof(bool);
-                storage.boolean = ((int) (dynamic) value) != 0;
+                storage.boolean = (bool) (dynamic) value;
             }
             else if (bit_length <= 8)
             {
@@ -374,19 +373,36 @@ namespace UAVCAN
             if (bit_offset + bit_length > (transfer.payload_len * 8))
                 bit_length = (Byte) (transfer.payload_len * 8 - bit_offset);
 
+            /*
+                BigInteger bi = new BigInteger(transfer.data.ToArray());
+
+                var newbi = bi >> (Int32) bit_offset;
+
+                for (int a = bit_length; a < 64; a++)
+                {
+                    if ((newbi & (1L << (int) a)) > 0)
+                    {
+                        newbi -= BigInteger.One << (int) (+a);
+                    }
+                }
+
+                //output.s64 = newbi.LongValue();
+                var test = newbi.ToByteArray().Take((bit_length / 8) + 1).ToArray();
+                Array.Resize(ref test, 8);
+                output.u64 = BitConverter.ToUInt64(test, 0);
+            */
+
             BigInteger bi = new BigInteger(transfer.data.Reverse().ToArray());
 
-            var newbi = bi >> (Int32) bit_offset;
+            var newbi = bi >> (Int32)bit_offset;
 
             for (int a = bit_length; a < 64; a++)
             {
-                newbi.unsetBit((uint) a);
+                newbi.unsetBit((uint)a);
             }
 
             output.s64 = newbi.LongValue();
             var test = newbi.getBytes().Reverse().Take((bit_length / 8) + 1).ToArray();
-            //Array.Resize(ref test,8);
-            //output.u64 = BitConverter.ToUInt64(test, 0);
 
             return bit_length;
         }

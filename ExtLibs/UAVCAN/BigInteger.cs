@@ -164,7 +164,7 @@ public class BigInteger
 	1801, 1811, 1823, 1831, 1847, 1861, 1867, 1871, 1873, 1877, 1879, 1889,
 	1901, 1907, 1913, 1931, 1933, 1949, 1951, 1973, 1979, 1987, 1993, 1997, 1999 };
 
-    private uint[] data = null;             // stores bytes from the Big Integer
+    public uint[] data { get; internal set; } = null;             // stores bytes from the Big Integer
     public int dataLength;                 // number of actual chars used
 
 
