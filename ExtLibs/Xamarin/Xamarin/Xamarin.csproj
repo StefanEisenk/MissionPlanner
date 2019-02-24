@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>pdbonly</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SkiaSharp.Views.Forms" Version="1.68.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\ArduPilot\MissionPlanner.ArduPilot.csproj" />
+    <ProjectReference Include="..\..\Comms\MissionPlanner.Comms.csproj" />
+    <ProjectReference Include="..\..\Utilities\MissionPlanner.Utilities.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="MasterDetailPage1MenuItem.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="MasterDetailPage1Detail.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+</Project>

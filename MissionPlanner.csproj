@@ -114,12 +114,18 @@
       <Project>{098f542c-7c70-4b9c-b2e2-ac5dc5e0294b}</Project>
       <Name>AltitudeAngelWings</Name>
     </ProjectReference>
-    <ProjectReference Include="ExtLibs\Antenna\MissionPlanner.Antenna.csproj" />
+    <ProjectReference Include="ExtLibs\Antenna\MissionPlanner.Antenna.csproj">
+      <Project>{94836116-0CD5-4EA9-8049-447FEA886406}</Project>
+      <Name>MissionPlanner.Antenna</Name>
+    </ProjectReference>
     <ProjectReference Include="ExtLibs\Arduino\Arduino.csproj">
       <Project>{DFA3C3B7-F098-4567-A780-A37DC52CA577}</Project>
       <Name>Arduino</Name>
     </ProjectReference>
-    <ProjectReference Include="ExtLibs\ArduPilot\MissionPlanner.ArduPilot.csproj" />
+    <ProjectReference Include="ExtLibs\ArduPilot\MissionPlanner.ArduPilot.csproj">
+      <Project>{CA6345D3-7A6D-478B-A0ED-A58E50DCAA83}</Project>
+      <Name>MissionPlanner.ArduPilot</Name>
+    </ProjectReference>
     <ProjectReference Include="ExtLibs\AviFile\AviFile.csproj">
       <Project>{ABB32A29-AF50-47FA-B243-5FD75A5ABA54}</Project>
       <Name>AviFile</Name>
@@ -137,13 +143,19 @@
       <Project>{825E7A10-390C-4A2B-B3A8-491D14966912}</Project>
       <Name>MissionPlanner.Comms</Name>
     </ProjectReference>
-    <ProjectReference Include="ExtLibs\Controls\MissionPlanner.Controls.csproj" />
+    <ProjectReference Include="ExtLibs\Controls\MissionPlanner.Controls.csproj">
+      <Project>{C8B88795-6D01-494D-83AD-6944BD4C5023}</Project>
+      <Name>MissionPlanner.Controls</Name>
+    </ProjectReference>
     <ProjectReference Include="ExtLibs\Core\Core.csproj">
       <Project>{59129078-7B12-4198-B93E-0AA08D0BB7ED}</Project>
       <Name>Core</Name>
       <Private>true</Private>
     </ProjectReference>
-    <ProjectReference Include="ExtLibs\GDAL\GDAL.NET.csproj" />
+    <ProjectReference Include="ExtLibs\GDAL\GDAL.NET.csproj">
+      <Project>{766FCF85-4809-44DB-B316-6C4902C65245}</Project>
+      <Name>GDAL.NET</Name>
+    </ProjectReference>
     <ProjectReference Include="ExtLibs\GeoUtility\GeoUtility.csproj">
       <Project>{7F7994CE-823F-4A04-BBEA-D0A3808FF56D}</Project>
       <Name>GeoUtility</Name>
@@ -156,8 +168,14 @@
       <Project>{e06def77-f933-42fb-afd7-db2d0d8d6a98}</Project>
       <Name>GMap.NET.WindowsForms</Name>
     </ProjectReference>
-    <ProjectReference Include="ExtLibs\HIL\MissionPlanner.HIL.csproj" />
-    <ProjectReference Include="ExtLibs\ICSharpCode.SharpZipLib\ICSharpCode.SharpZipLib.csproj" />
+    <ProjectReference Include="ExtLibs\HIL\MissionPlanner.HIL.csproj">
+      <Project>{077E19BA-4129-4AAE-8FCD-34D6FAF85B78}</Project>
+      <Name>MissionPlanner.HIL</Name>
+    </ProjectReference>
+    <ProjectReference Include="ExtLibs\ICSharpCode.SharpZipLib\ICSharpCode.SharpZipLib.csproj">
+      <Project>{6D4F97A1-D0A0-44EC-B2A3-F5C954209444}</Project>
+      <Name>ICSharpCode.SharpZipLib</Name>
+    </ProjectReference>
     <ProjectReference Include="ExtLibs\KMLib\KMLib.csproj">
       <Project>{29976BA4-A04D-4A80-A866-098C879C2FDE}</Project>
       <Name>KMLib</Name>
@@ -174,7 +192,10 @@
       <Project>{cce510f7-1da6-40f2-8921-b86ed41bb85e}</Project>
       <Name>ManagedNativeWifi.Simple</Name>
     </ProjectReference>
-    <ProjectReference Include="ExtLibs\Maps\MissionPlanner.Maps.csproj" />
+    <ProjectReference Include="ExtLibs\Maps\MissionPlanner.Maps.csproj">
+      <Project>{6C4FF9C3-7AFF-4274-B8FC-4A93A1FAADEA}</Project>
+      <Name>MissionPlanner.Maps</Name>
+    </ProjectReference>
     <ProjectReference Include="ExtLibs\Mavlink\MAVLink.csproj">
       <Project>{13d2ec90-c41f-48a1-aada-859b6dc24edc}</Project>
       <Name>MAVLink</Name>
@@ -207,7 +228,10 @@
       <Project>{cf402948-a3f4-4962-8a57-e40b46759d25}</Project>
       <Name>solo</Name>
     </ProjectReference>
-    <ProjectReference Include="ExtLibs\Strings\MissionPlanner.Strings.csproj" />
+    <ProjectReference Include="ExtLibs\Strings\MissionPlanner.Strings.csproj">
+      <Project>{A0DE147B-144C-4A34-8D46-9394570AD7E8}</Project>
+      <Name>MissionPlanner.Strings</Name>
+    </ProjectReference>
     <ProjectReference Include="ExtLibs\SvgNet\SvgNet.csproj">
       <Project>{bb4c8021-b5e1-4de2-82cb-14bdfb9837e4}</Project>
       <Name>SvgNet</Name>
@@ -216,20 +240,35 @@
       <Project>{aba78b2e-77c3-4377-8568-9542ac227971}</Project>
       <Name>tlogThumbnailHandler</Name>
     </ProjectReference>
-    <ProjectReference Include="ExtLibs\Transitions\Transitions.csproj" />
-    <ProjectReference Include="ExtLibs\UAVCAN\UAVCAN.csproj" />
+    <ProjectReference Include="ExtLibs\Transitions\Transitions.csproj">
+      <Project>{B6054E5B-362C-4298-8F20-6BA5BF1A859E}</Project>
+      <Name>Transitions</Name>
+    </ProjectReference>
+    <ProjectReference Include="ExtLibs\UAVCAN\UAVCAN.csproj">
+      <Project>{3A413E59-A20E-477C-997E-64B1398E0E80}</Project>
+      <Name>UAVCAN</Name>
+    </ProjectReference>
     <ProjectReference Include="ExtLibs\Utilities\MissionPlanner.Utilities.csproj">
       <Project>{1378A66C-38E4-46F5-A05F-DC04EF7D4D16}</Project>
       <Name>MissionPlanner.Utilities</Name>
     </ProjectReference>
-    <ProjectReference Include="ExtLibs\WebCamService\WebCamService.csproj" />
+    <ProjectReference Include="ExtLibs\WebCamService\WebCamService.csproj">
+      <Project>{78AC6375-28AF-4175-9F20-B5099C92EA2B}</Project>
+      <Name>WebCamService</Name>
+    </ProjectReference>
     <ProjectReference Include="ExtLibs\ZedGraph\ZedGraph.csproj">
       <Project>{2541686B-1673-43BF-AF89-3163945DB009}</Project>
       <Name>ZedGraph</Name>
       <EmbedInteropTypes>False</EmbedInteropTypes>
     </ProjectReference>
-    <ProjectReference Include="ExtLibs\Zeroconf\Zeroconf\Zeroconf.csproj" />
-    <ProjectReference Include="Updater\Updater.csproj" />
+    <ProjectReference Include="ExtLibs\Zeroconf\Zeroconf\Zeroconf.csproj">
+      <Project>{F4B60F03-F4C8-42CD-A46D-712838DC184B}</Project>
+      <Name>Zeroconf</Name>
+    </ProjectReference>
+    <ProjectReference Include="Updater\Updater.csproj">
+      <Project>{E64A1A41-A5B0-458E-8284-BB63705354DA}</Project>
+      <Name>Updater</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CSMatIO" version="1.0.20" targetFramework="netstandard2.0" requireReinstallation="true" />
@@ -296,6 +335,7 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Utilities\AltitudeAngel\MissionPlannerStateAdapter.cs" />
+    <Compile Include="Utilities\Speech.cs" />
     <Compile Include="Utilities\SSHTerminal.cs" />
     <Compile Include="Utilities\XTermRBGColors.cs" />
     <Compile Include="GenOTP.cs">
