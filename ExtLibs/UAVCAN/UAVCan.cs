@@ -178,7 +178,7 @@ namespace UAVCAN
                             dynamicBytes.AddRange(allocation.unique_id.Take(allocation.unique_id_len));
                             allocation.unique_id = dynamicBytes.ToArray();
                             allocation.unique_id_len = (byte)allocation.unique_id.Length;
-                            if (allocation.unique_id_len == 16)
+                            if (allocation.unique_id_len >= 16)
                             {
                                 for (int a = 125; a >= 1; a--)
                                 {
@@ -188,6 +188,7 @@ namespace UAVCAN
                                         break;
                                     }
                                 }
+                                dynamicBytes.Clear();
                             }
                             var slcan = PackageMessage(SourceNode, frame.Priority, allocation);
                             lock (sr_lock)

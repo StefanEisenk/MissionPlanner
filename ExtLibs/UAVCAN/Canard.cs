@@ -144,6 +144,19 @@ namespace UAVCAN
                 storage.u64 = ((UInt64) (dynamic) value);
             }
 
+            /*
+ * The bit copy algorithm assumes that more significant bits have lower index, so we need to shift some.
+ * Extra least significant bits will be filled with zeroes, which is fine.
+ * Extra most significant bits will be discarded here.
+ * Coverity Scan mistakenly believes that the array may be overrun if bit_length == 64; however, this branch will
+ * not be taken if bit_length == 64, because 64 % 8 == 0.
+ */
+            if ((bit_length % 8) != 0)
+            {
+                // coverity[overrun-local]
+                storage[bit_length / 8] = (byte)(storage.bytes[bit_length / 8] << ((8 - (bit_length % 8)) & 7));
+            }
+
             copyBitArray(storage.bytes.ToArray(), 0, bit_length, destination, bit_offset);
         }
 
@@ -157,9 +170,11 @@ namespace UAVCAN
             // Normalizing inputs
             //src += src_offset / 8;
             //dst += dst_offset / 8;
+            if(src_offset > 8 || dst_offset > 8)
+                throw  new Exception("does thsi hit");
 
-            //src_offset %= 8;
-            //dst_offset %= 8;
+            src_offset %= 8;
+            dst_offset %= 8;
 
             uint last_bit = src_offset + src_len;
             while (last_bit - src_offset > 0)
@@ -170,8 +185,10 @@ namespace UAVCAN
                 Byte max_offset = (Byte) Math.Max(src_bit_offset, dst_bit_offset);
                 UInt32 copy_bits = (UInt32) Math.Min(last_bit - src_offset, 8U - max_offset);
 
-                Byte write_mask = (Byte) ((Byte) (0xFFU >> (int) (8u - copy_bits)) >> dst_bit_offset);
-                Byte src_data = (Byte) ((src[src_offset / 8U] << src_bit_offset) >> dst_bit_offset);
+                //Byte write_mask = (Byte) ((Byte) (0xFFU >> (int) (8u - copy_bits)) >> dst_bit_offset);
+                //Byte src_data = (Byte) ((src[src_offset / 8U] << src_bit_offset) >> dst_bit_offset);
+                Byte write_mask = (Byte)((Byte)(0xFF00U >> (int)copy_bits) >> dst_bit_offset);
+                Byte src_data = (Byte)((src[src_offset / 8U] << src_bit_offset) >> dst_bit_offset);
 
                 dst[dst_offset / 8U] = (Byte) ((dst[dst_offset / 8U] & ~write_mask) | (src_data & write_mask));
 
@@ -213,7 +230,7 @@ namespace UAVCAN
             if ((bit_length % 8) != 0)
             {
                 // coverity[overrun-local]
-                //storage[bit_length / 8] = (uint8_t) (storage.bytes[bit_length / 8] >> ((8 - (bit_length % 8)) & 7));
+                storage[bit_length / 8] = (byte) (storage.bytes[bit_length / 8] >> ((8 - (bit_length % 8)) & 7));
             }
 
             /*
