@@ -23,11 +23,21 @@ namespace UAVCAN
 
             public byte[] ToBytes()
             {
-                var data = bi.getBytes().Reverse().ToArray();
+                int get = (bit / 32) + 1;
 
-                Array.Resize(ref data, (bit + 7) / 8);
+                System.Numerics.BigInteger sbi = System.Numerics.BigInteger.Zero;
 
-                return data;
+                for (int a = 0; a < get; a++)
+                {
+                    sbi += new System.Numerics.BigInteger(bi.data[a]) << (a * 32);
+                }
+                //bi.data
+
+                var data2 = sbi.ToByteArray();
+
+                Array.Resize(ref data2, (bit + 7) / 8);
+
+                return data2;
             }
         }
 
@@ -135,7 +145,9 @@ namespace UAVCAN
                         var slcan = PackageMessage(frame.SourceNode, frame.Priority, readRes);
 
                         lock (sr_lock)
+                        {
                             sr.BaseStream.Write(ASCIIEncoding.ASCII.GetBytes(slcan), 0, slcan.Length);
+                        }
                     }
                     else if (msg.GetType() == typeof(uavcan.uavcan_protocol_GetNodeInfo_res))
                     {
@@ -305,7 +317,7 @@ namespace UAVCAN
 
             transferID++;
 
-            Console.WriteLine(ans);
+            Console.WriteLine("TX "+ans);
             return ans;
         }
 
@@ -406,6 +418,9 @@ namespace UAVCAN
             var packet_len = line[1 + id_len] - 48; // dlc
             var with_timestamp = line_len > (2 + id_len + packet_len * 2);
 
+            if (packet_len == 0)
+                return;
+
             var frame = new CANFrame(BitConverter.GetBytes(packet_id));
 
             var packet_data = line.Skip(2 + id_len).Take(packet_len * 2).NowNextBy2().Select(a =>
@@ -414,6 +429,7 @@ namespace UAVCAN
             });
 
             //Console.WriteLine(ASCIIEncoding.ASCII.GetString( packet_data));
+            Console.WriteLine("RX " + line);
 
             var payload = new CANPayload(packet_data.ToArray());
 

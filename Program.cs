@@ -70,6 +70,7 @@ namespace MissionPlanner
                 port.PortName = "com8";
                 port.BaudRate = 115200;
                 port.ReadBufferSize = 1024 * 20;
+                port.WriteBufferSize = 1024 * 20;
                 port.Open();
 
                 //clear buffer
