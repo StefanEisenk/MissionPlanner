@@ -7,6 +7,7 @@ using System.Net;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -24,7 +25,7 @@ namespace UAVCAN
             public byte[] ToBytes()
             {
                 int get = (bit / 32) + 1;
-
+                
                 System.Numerics.BigInteger sbi = System.Numerics.BigInteger.Zero;
 
                 for (int a = 0; a < get; a++)
@@ -62,6 +63,10 @@ namespace UAVCAN
         private StreamReader sr;
         DateTime uptime = DateTime.Now;
 
+        /// <summary>
+        /// Start slcan stream sending a nodestatus packet every second
+        /// </summary>
+        /// <param name="stream"></param>
         public void StartSLCAN(Stream stream)
         {
             stream.Write(new byte[] { (byte)'O', (byte)'\r' }, 0, 2);
@@ -317,7 +322,7 @@ namespace UAVCAN
 
             transferID++;
 
-            Console.WriteLine("TX "+ans);
+            Console.WriteLine("TX "+ans.Replace("\r","\r\n"));
             return ans;
         }
 
@@ -326,6 +331,16 @@ namespace UAVCAN
         public byte SourceNode { get; set; } = 127;
 
         private int transferID = 0;
+
+        public UAVCAN(Byte sourceNode)
+        {
+            SourceNode = sourceNode;
+        }
+
+        public UAVCAN()
+        {
+
+        }
 
         public static void test()
         {
@@ -362,9 +377,10 @@ namespace UAVCAN
 
             fix.encode(chunk_cb, state);
 
-            var data = state.bi.getBytes().Reverse().ToArray();
+            var data = state.ToBytes();//
+            var data2 = state.bi.getBytes().Reverse().ToArray();
 
-            Array.Resize(ref data, (state.bit + 7) / 8);
+            Array.Resize(ref data2, (state.bit + 7) / 8);
 
             var fixtest = new uavcan.uavcan_equipment_gnss_Fix();
             fixtest.decode(new uavcan.CanardRxTransfer(data));
@@ -374,20 +390,44 @@ namespace UAVCAN
 
             }
 
-            var lines = File.ReadAllLines(@"C:\Users\michael\OneDrive\canlog.can");
-            var id_len = 0;
-
-            // need sourcenode, msgid, transfer id
-
-
-            var basecan = new UAVCAN();
-
-            int l = 0;
-            foreach (var line in lines)
             {
-                l++;
+                var lines = File.ReadAllLines(@"C:\Users\mich1\OneDrive\canlog gpsupdate2-8mhz.txt");
+                
+                var basecan = new UAVCAN();
 
-                basecan.ReadMessage(line);
+                int l = 0;
+                foreach (var line in lines)
+                {
+                    l++;
+
+                    // tab delimiter file
+                    var splitline = line.Split('\t');
+                    
+                    for (int a = 0; a < splitline.Length; a++)
+                    {
+                        splitline[a] = splitline[a].Trim().Replace(" ", "");
+                    }
+
+                    basecan.ReadMessage("T" + splitline[2] + (splitline[3].Length / 2) + splitline[3]);
+                }
+            }
+
+            {
+                var lines = File.ReadAllLines(@"C:\Users\michael\OneDrive\canlog.can");
+                var id_len = 0;
+
+                // need sourcenode, msgid, transfer id
+
+
+                var basecan = new UAVCAN();
+
+                int l = 0;
+                foreach (var line in lines)
+                {
+                    l++;
+
+                    basecan.ReadMessage(line);
+                }
             }
         }
 
@@ -429,7 +469,7 @@ namespace UAVCAN
             });
 
             //Console.WriteLine(ASCIIEncoding.ASCII.GetString( packet_data));
-            Console.WriteLine("RX " + line);
+            Console.WriteLine("RX " + line.Replace("\r","\r\n"));
 
             var payload = new CANPayload(packet_data.ToArray());
 
@@ -563,6 +603,9 @@ namespace UAVCAN
             }
             */
 
+            //todo try replace this with built in dot net type Biginterger
+        
+      
             BigInteger input = new BigInteger(buffer.Reverse().ToArray());
 
             for (uint a = 0; a < sizeinbits; a++)

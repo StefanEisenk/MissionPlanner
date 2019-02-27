@@ -62,8 +62,9 @@ namespace MissionPlanner
         {
             try
             {
-                //UAVCAN.UAVCAN.test();
 
+                UAVCAN.UAVCAN.test();
+                
                 UAVCAN.UAVCAN can = new UAVCAN.UAVCAN();
 
                 ICommsSerial port = new SerialPort() {NewLine = "\r"};
@@ -75,6 +76,8 @@ namespace MissionPlanner
 
                 //clear buffer
                 port.ReadExisting();
+
+                can.SourceNode = 127;
 
                 can.StartSLCAN(port.BaseStream);
 
