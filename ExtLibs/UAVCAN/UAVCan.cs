@@ -25,7 +25,7 @@ namespace UAVCAN
             public byte[] ToBytes()
             {
                 int get = (bit / 32) + 1;
-                
+
                 System.Numerics.BigInteger sbi = System.Numerics.BigInteger.Zero;
 
                 for (int a = 0; a < get; a++)
@@ -45,8 +45,10 @@ namespace UAVCAN
         public static bool testconversion<T>(T input, byte bitlength, bool signed) where T : struct
         {
             var buf = new byte[8];
+            var ctx = new statetracking();
             T ans = input;
             uavcan.canardEncodeScalar(buf, 0, bitlength, input);
+            chunk_cb(buf, bitlength, ctx);
             uavcan.canardDecodeScalar(new uavcan.CanardRxTransfer(buf), 0, bitlength, signed, ref ans);
 
             if (input.ToString() != ans.ToString())
@@ -55,13 +57,30 @@ namespace UAVCAN
             return true;
         }
 
-        public delegate void MessageRecievedDel(CANFrame frame, object msg);
+        public delegate void MessageRecievedDel(CANFrame frame, object msg, byte transferID);
 
         public event MessageRecievedDel MessageReceived;
 
         private object sr_lock = new object();
-        private StreamReader sr;
+        private Stream sr;
         DateTime uptime = DateTime.Now;
+
+        string ReadLine(Stream st)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            char cha;
+
+            do
+            {
+                cha = (char)st.ReadByte();
+                if (cha == -1)
+                    break;
+                sb.Append(cha);
+            } while (cha != '\r' && cha != '\a');
+
+            return sb.ToString();
+        }
 
         /// <summary>
         /// Start slcan stream sending a nodestatus packet every second
@@ -69,15 +88,25 @@ namespace UAVCAN
         /// <param name="stream"></param>
         public void StartSLCAN(Stream stream)
         {
+            //cleanup
+            stream.Write(new byte[] { (byte)'\r' }, 0, 1);
+            // close
+            stream.Write(new byte[] { (byte)'C', (byte)'\r' }, 0, 2);
+            // speed 
+            stream.Write(new byte[] { (byte)'S', (byte)'8', (byte)'\r' }, 0, 3);
+            // open
             stream.Write(new byte[] { (byte)'O', (byte)'\r' }, 0, 2);
-            sr = new StreamReader(stream);
+            // clear status
+            stream.Write(new byte[] { (byte)'F', (byte)'\r' }, 0, 2);
+
+            sr = stream;
 
             // read everything
             Task.Run(() =>
             {
-                while (!sr.EndOfStream)
+                while (sr.CanRead)
                 {
-                    var line = sr.ReadLine();
+                    var line = ReadLine(stream);
                     try
                     {
                         ReadMessage(line);
@@ -89,16 +118,19 @@ namespace UAVCAN
             });
 
             // 1 second nodestatus send
-            Task.Run(() => {
-                while (sr.BaseStream.CanWrite)
+            Task.Run(() =>
+            {
+                while (stream.CanWrite)
                 {
-                    var slcan = PackageMessage(SourceNode, 20,
-                        new uavcan.uavcan_protocol_NodeStatus()
-                            {health = (byte)uavcan.UAVCAN_PROTOCOL_NODESTATUS_HEALTH_OK, mode = (byte)uavcan.UAVCAN_PROTOCOL_NODESTATUS_MODE_OPERATIONAL, sub_mode = 0, uptime_sec = (uint)(DateTime.Now - uptime).TotalSeconds, vendor_specific_status_code = 0});
+                    if (NodeStatus)
+                    {
+                        var slcan = PackageMessage(SourceNode, 20, transferID++,
+                            new uavcan.uavcan_protocol_NodeStatus()
+                            { health = (byte)uavcan.UAVCAN_PROTOCOL_NODESTATUS_HEALTH_OK, mode = (byte)uavcan.UAVCAN_PROTOCOL_NODESTATUS_MODE_OPERATIONAL, sub_mode = 0, uptime_sec = (uint)(DateTime.Now - uptime).TotalSeconds, vendor_specific_status_code = 0 });
 
-                    lock (sr_lock)
-                        sr.BaseStream.Write(ASCIIEncoding.ASCII.GetBytes(slcan), 0, slcan.Length);
-
+                        lock (sr_lock)
+                            WriteToStream(slcan);
+                    }
                     Thread.Sleep(1000);
                 }
             });
@@ -114,13 +146,18 @@ namespace UAVCAN
 
             using (var file = File.OpenRead(firmware_name))
             {
-                MessageReceived += (frame, msg) =>
+                MessageReceived += (frame, msg, transferID) =>
                 {
+                    if (frame.IsServiceMsg && frame.SvcDestinationNode != SourceNode)
+                        return;
+
                     if (msg.GetType() == typeof(uavcan.uavcan_protocol_file_BeginFirmwareUpdate_res))
                     {
                         var bfures = msg as uavcan.uavcan_protocol_file_BeginFirmwareUpdate_res;
                         if (bfures.error != 0)
                             throw new Exception("Begin Firmware Update returned an error");
+
+                        //NodeStatus = false;
                     }
                     else if (msg.GetType() == typeof(uavcan.uavcan_protocol_NodeStatus))
                     {
@@ -136,23 +173,37 @@ namespace UAVCAN
                                                 ASCIIEncoding.ASCII.GetString(frreq.path.path).TrimEnd('\0') + " vs " +
                                                 ASCIIEncoding.ASCII.GetString(firmware_namebytes));
                         Console.WriteLine("file_Read: {0} at {1}", ASCIIEncoding.ASCII.GetString(frreq.path.path).TrimEnd('\0'), frreq.offset);
-                        file.Seek((long) frreq.offset, SeekOrigin.Begin);
+                        file.Seek((long)frreq.offset, SeekOrigin.Begin);
                         var buffer = new byte[256];
                         var read = file.Read(buffer, 0, 256);
                         var readRes = new uavcan.uavcan_protocol_file_Read_res()
                         {
                             data = buffer,
-                            data_len = (ushort) read,
+                            data_len = (ushort)read,
                             error = new uavcan.uavcan_protocol_file_Error()
-                                {value = (short) uavcan.UAVCAN_PROTOCOL_FILE_ERROR_OK}
+                            { value = (short)uavcan.UAVCAN_PROTOCOL_FILE_ERROR_OK }
                         };
 
-                        var slcan = PackageMessage(frame.SourceNode, frame.Priority, readRes);
+                        var slcan = PackageMessage(frame.SourceNode, frame.Priority, transferID, readRes);
 
                         lock (sr_lock)
                         {
-                            sr.BaseStream.Write(ASCIIEncoding.ASCII.GetBytes(slcan), 0, slcan.Length);
+                            WriteToStream(slcan);
                         }
+                    }
+                    else if (msg.GetType() == typeof(uavcan.uavcan_protocol_GetNodeInfo_req))
+                    {
+                        var gnires = new uavcan.uavcan_protocol_GetNodeInfo_res();
+                        gnires.software_version.major = 1;
+                        gnires.hardware_version.major = 1;
+                        gnires.name = ASCIIEncoding.ASCII.GetBytes("org.missionplanner");
+                        gnires.name_len = (byte)gnires.name.Length;
+                        gnires.status = new uavcan.uavcan_protocol_NodeStatus()
+                        { health = (byte)uavcan.UAVCAN_PROTOCOL_NODESTATUS_HEALTH_OK, mode = (byte)uavcan.UAVCAN_PROTOCOL_NODESTATUS_MODE_OPERATIONAL, sub_mode = 0, uptime_sec = (uint)(DateTime.Now - uptime).TotalSeconds, vendor_specific_status_code = 0 };
+
+                        var slcan = PackageMessage(frame.SourceNode, frame.Priority, transferID, gnires);
+                        lock (sr_lock)
+                            WriteToStream(slcan);
                     }
                     else if (msg.GetType() == typeof(uavcan.uavcan_protocol_GetNodeInfo_res))
                     {
@@ -164,19 +215,22 @@ namespace UAVCAN
                                 new uavcan.uavcan_protocol_file_BeginFirmwareUpdate_req()
                                 {
                                     image_file_remote_path = new uavcan.uavcan_protocol_file_Path()
-                                        {path = firmware_namebytes},
+                                    { path = firmware_namebytes },
                                     source_node_id = SourceNode
                                 };
-                            req_msg.image_file_remote_path.path_len = (byte) firmware_namebytes.Length;
+                            req_msg.image_file_remote_path.path_len = (byte)firmware_namebytes.Length;
 
-                            var slcan = PackageMessage(frame.SourceNode, frame.Priority, req_msg);
+                            var slcan = PackageMessage(frame.SourceNode, frame.Priority, transferID, req_msg);
                             lock (sr_lock)
-                                sr.BaseStream.Write(ASCIIEncoding.ASCII.GetBytes(slcan), 0, slcan.Length);
+                                WriteToStream(slcan);
                         }
                     }
                     else if (msg.GetType() == typeof(uavcan.uavcan_protocol_dynamic_node_id_Allocation))
                     {
                         var allocation = msg as uavcan.uavcan_protocol_dynamic_node_id_Allocation;
+
+                        //if (allocation.first_part_of_unique_id && dynamicBytes.Count() != 0)
+                        //  return;
 
                         if (allocation.first_part_of_unique_id)
                         {
@@ -185,32 +239,45 @@ namespace UAVCAN
                             dynamicBytes.Clear();
                             dynamicBytes.AddRange(allocation.unique_id.Take(allocation.unique_id_len));
 
-                            var slcan = PackageMessage(SourceNode, frame.Priority, allocation);
+                            var slcan = PackageMessage(SourceNode, frame.Priority, transferID, allocation);
                             lock (sr_lock)
-                                sr.BaseStream.Write(ASCIIEncoding.ASCII.GetBytes(slcan), 0, slcan.Length);
+                                WriteToStream(slcan);
                         }
                         else
                         {
-                            allocation.first_part_of_unique_id = false;
                             dynamicBytes.AddRange(allocation.unique_id.Take(allocation.unique_id_len));
+
                             allocation.unique_id = dynamicBytes.ToArray();
+
                             allocation.unique_id_len = (byte)allocation.unique_id.Length;
+
                             if (allocation.unique_id_len >= 16)
                             {
                                 for (int a = 125; a >= 1; a--)
                                 {
                                     if (!nodeList.Contains(a))
                                     {
-                                        allocation.node_id = (byte) a;
+                                        allocation.node_id = (byte)a;
+                                        Console.WriteLine("Allocate " + a);
                                         break;
                                     }
                                 }
                                 dynamicBytes.Clear();
                             }
-                            var slcan = PackageMessage(SourceNode, frame.Priority, allocation);
+                            var slcan = PackageMessage(SourceNode, frame.Priority, transferID, allocation);
                             lock (sr_lock)
-                                sr.BaseStream.Write(ASCIIEncoding.ASCII.GetBytes(slcan), 0, slcan.Length);
+                                WriteToStream(slcan);
+
                         }
+                    }
+                    else if (msg.GetType() == typeof(uavcan.uavcan_protocol_enumeration_Begin_req))
+                    {
+                        var enum1 = msg as uavcan.uavcan_protocol_enumeration_Begin_req;
+
+                    }
+                    else
+                    {
+
                     }
                 };
 
@@ -219,11 +286,11 @@ namespace UAVCAN
                 // wait to build nodelist
                 Thread.Sleep(5000);
 
-          
+
 
                 // start readloop
                 //uavcan.uavcan_protocol_file_Read_req
-
+                
                 while (true)
                 {
                     foreach (var i in nodeList)
@@ -232,17 +299,30 @@ namespace UAVCAN
                         uavcan.uavcan_protocol_GetNodeInfo_req gnireq = new uavcan.uavcan_protocol_GetNodeInfo_req() { };
                         gnireq.encode(chunk_cb, statetracking);
 
-                        var slcan = PackageMessage((byte)i, 30, gnireq);
+                        var slcan = PackageMessage((byte)i, 30, transferID++, gnireq);
                         lock (sr_lock)
-                            sr.BaseStream.Write(ASCIIEncoding.ASCII.GetBytes(slcan), 0, slcan.Length);
+                            WriteToStream(slcan);
                     }
 
-                    Thread.Sleep(10000);
+                    Thread.Sleep(100000);
                 }
             }
         }
 
-        public string PackageMessage(byte destNode, byte priority, IUAVCANSerialize msg)
+        private void WriteToStream(string slcan)
+        {
+            var lines = slcan.Split(new[] { '\r' }, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (var line in lines)
+            {
+                sr.Write(ASCIIEncoding.ASCII.GetBytes(line+'\r'), 0, line.Length+1);
+                sr.Flush();
+                // var ans = sr.Peek();
+                // Console.WriteLine((char)ans);
+            }
+        }
+
+        public string PackageMessage(byte destNode, byte priority, byte transferID, IUAVCANSerialize msg)
         {
             var state = new statetracking();
             msg.encode(chunk_cb, state);
@@ -252,7 +332,7 @@ namespace UAVCAN
             CANFrame cf = new CANFrame(new byte[4]);
             cf.SourceNode = SourceNode;
             cf.Priority = priority;
-            
+
             if (msg.GetType().FullName.EndsWith("_res") || msg.GetType().FullName.EndsWith("_req"))
             {
                 // service
@@ -269,7 +349,7 @@ namespace UAVCAN
 
             string ans = "";
 
-            var payloaddata = state.ToBytes();     
+            var payloaddata = state.ToBytes();
 
             if (payloaddata.Length > 7)
             {
@@ -287,8 +367,8 @@ namespace UAVCAN
                 {
                     if (a == 0)
                     {
-                        buffer[0] = (byte) (crc & 0xff);
-                        buffer[1] = (byte) (crc >> 8);
+                        buffer[0] = (byte)(crc & 0xff);
+                        buffer[1] = (byte)(crc >> 8);
                         size = 5;
                         Array.ConstrainedCopy(payloaddata, a, buffer, 2, 5);
                     }
@@ -320,17 +400,17 @@ namespace UAVCAN
                 ans = String.Format("T{0}{1}{2}\r", cf.ToHex(), buffer.Length, payload.ToHex());
             }
 
-            transferID++;
-
-            Console.WriteLine("TX "+ans.Replace("\r","\r\n"));
+            //Console.Write("TX " + ans.Replace("\r", "\r\n"));
+            //Console.WriteLine("TX " + msgtype.Item1 + " " + JsonConvert.SerializeObject(msg));
             return ans;
         }
 
         Dictionary<(uint, int), List<byte>> transfer = new Dictionary<(uint, int), List<byte>>();
 
         public byte SourceNode { get; set; } = 127;
+        public bool NodeStatus { get; set; } = true;
 
-        private int transferID = 0;
+        private byte transferID = 0;
 
         public UAVCAN(Byte sourceNode)
         {
@@ -346,8 +426,8 @@ namespace UAVCAN
         {
             var fix = new uavcan.uavcan_equipment_gnss_Fix()
             {
-                timestamp = new uavcan.uavcan_Timestamp() {usec = 1},
-                gnss_timestamp = new uavcan.uavcan_Timestamp() {usec = 2},
+                timestamp = new uavcan.uavcan_Timestamp() { usec = 1 },
+                gnss_timestamp = new uavcan.uavcan_Timestamp() { usec = 2 },
                 gnss_time_standard = 3,
                 height_ellipsoid_mm = 4,
                 height_msl_mm = 5,
@@ -355,21 +435,25 @@ namespace UAVCAN
                 longitude_deg_1e8 = 7,
                 num_leap_seconds = 17,
                 pdop = 8f,
-                sats_used = 10, ned_velocity = new[] {1f,2f,3f}, status = 3
+                sats_used = 10,
+                ned_velocity = new[] { 1f, 2f, 3f },
+                status = 3
             };
 
-            testconversion((byte) 3, 3, false);
-            testconversion((byte) 3, 3, false);
-            testconversion((sbyte) -3, 3, true);
-            testconversion((byte) 3, 5, false);
-            testconversion((sbyte) -3, 5, true);
-            testconversion((sbyte) -3, 5, true);
-            testconversion((ulong) 1234567890, 55, false);
-            testconversion((ulong) 1234567890, 33, false);
-            testconversion((long) -1234567890, 33, true);
+            testconversion((byte)125, 7, false);
 
-            testconversion((int) -12345678, 27, true);
-            testconversion((int) (1 << 25), 27, true);
+            testconversion((byte)3, 3, false);
+            testconversion((byte)3, 3, false);
+            testconversion((sbyte)-3, 3, true);
+            testconversion((byte)3, 5, false);
+            testconversion((sbyte)-3, 5, true);
+            testconversion((sbyte)-3, 5, true);
+            testconversion((ulong)1234567890, 55, false);
+            testconversion((ulong)1234567890, 33, false);
+            testconversion((long)-1234567890, 33, true);
+
+            testconversion((int)-12345678, 27, true);
+            testconversion((int)(1 << 25), 27, true);
             // will fail
             //testconversion((int)(1 << 26), 27, true);
 
@@ -391,9 +475,35 @@ namespace UAVCAN
             }
 
             {
-                var lines = File.ReadAllLines(@"C:\Users\mich1\OneDrive\canlog gpsupdate2-8mhz.txt");
-                
                 var basecan = new UAVCAN();
+
+                var file = File.OpenRead(@"C:\Users\mich1\Google Drive\Here2-crc.bin");
+
+                var buffer = new byte[256];
+                var read = file.Read(buffer, 0, 256);
+                var readRes = new uavcan.uavcan_protocol_file_Read_res()
+                {
+                    data = buffer,
+                    data_len = (ushort)read,
+                    error = new uavcan.uavcan_protocol_file_Error()
+                    { value = (short)uavcan.UAVCAN_PROTOCOL_FILE_ERROR_OK }
+                };
+
+                var slcan = basecan.PackageMessage(125, 12, 0, readRes);
+
+
+                var liness = slcan.Split('\r');
+
+                foreach (var line in liness)
+                {
+                    basecan.ReadMessage(line);
+                }
+
+                var lines = File.ReadAllLines(@"C:\Users\mich1\OneDrive\canlog gpsupdate2-8mhz.txt");
+
+                //var basecan = new UAVCAN();
+
+                basecan.MessageReceived += (a1, a2, a3) => { };
 
                 int l = 0;
                 foreach (var line in lines)
@@ -402,14 +512,19 @@ namespace UAVCAN
 
                     // tab delimiter file
                     var splitline = line.Split('\t');
-                    
+
                     for (int a = 0; a < splitline.Length; a++)
                     {
                         splitline[a] = splitline[a].Trim().Replace(" ", "");
                     }
 
-                    basecan.ReadMessage("T" + splitline[2] + (splitline[3].Length / 2) + splitline[3]);
+                    try
+                    {
+                        basecan.ReadMessage("T" + splitline[2] + (splitline[3].Length / 2) + splitline[3]);
+                    }
+                    catch { }
                 }
+
             }
 
             {
@@ -439,6 +554,8 @@ namespace UAVCAN
             if (line_len <= 4)
                 return;
 
+            if (line.StartsWith("\a"))
+                line = line.Replace("\a", "");
 
             if (line[0] == 'T') // 29 bit data frame
             {
@@ -469,7 +586,7 @@ namespace UAVCAN
             });
 
             //Console.WriteLine(ASCIIEncoding.ASCII.GetString( packet_data));
-            Console.WriteLine("RX " + line.Replace("\r","\r\n"));
+            //Console.WriteLine("RX " + line.Replace("\r", "\r\n"));
 
             var payload = new CANPayload(packet_data.ToArray());
 
@@ -571,11 +688,11 @@ namespace UAVCAN
                 MethodInfo generic = method.MakeGenericMethod(msgtype.Item1);
                 try
                 {
-                    var ans = generic.Invoke(null, new object[] {result, startbyte});
+                    var ans = generic.Invoke(null, new object[] { result, startbyte });
 
-                    MessageReceived?.Invoke(frame, ans);
+                    //Console.WriteLine(("RX") + " " + msgtype.Item1 + " " + JsonConvert.SerializeObject(ans));
 
-                    //Console.WriteLine((frame.SourceNode == 127 ? "TX" : "RX") + " " + msgtype.Item1 + " " +JsonConvert.SerializeObject(ans));
+                    MessageReceived?.Invoke(frame, ans, payload.TransferID);
                 }
                 catch
                 {
@@ -585,7 +702,7 @@ namespace UAVCAN
 
         private static void chunk_cb(byte[] buffer, int sizeinbits, object ctx)
         {
-            var stuff = (statetracking) ctx;
+            var stuff = (statetracking)ctx;
             if (buffer == null)
             {
                 stuff.bit += sizeinbits;
@@ -604,15 +721,24 @@ namespace UAVCAN
             */
 
             //todo try replace this with built in dot net type Biginterger
-        
-      
+
+
             BigInteger input = new BigInteger(buffer.Reverse().ToArray());
 
-            for (uint a = 0; a < sizeinbits; a++)
+            int extrabits = 0;
+
+            if ((sizeinbits % 8) != 0)
             {
-                if ((input & (1L << (int) a)) > 0)
+                // coverity[overrun-local]
+                extrabits = ((8 - (sizeinbits % 8)) & 7);
+            }
+
+            // do the entire bit, incase it has been shifted left as it was not byte alligned
+            for (uint a = 0; a < (sizeinbits + extrabits); a++)
+            {
+                if ((input & (1L << (int)a)) > 0)
                 {
-                    stuff.bi.setBit((uint) stuff.bit + a);
+                    stuff.bi.setBit((uint)stuff.bit + a);
                 }
             }
 

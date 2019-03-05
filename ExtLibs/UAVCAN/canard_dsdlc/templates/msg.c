@@ -186,7 +186,7 @@ static void _decode_@(msg_underscored_name)(CanardRxTransfer transfer,ref uint32
 @[              if field.type.value_type.category == field.type.value_type.CATEGORY_PRIMITIVE]@
 @(ind)} else {
 @{indent += 1}@{ind = '    '*indent}@
-@(ind)msg.@('union.' if msg_union else '')@(field.name)_len = (uint8_t)(((transfer.payload_len*8)-bit_ofs)/@(field.type.value_type.bitlen));
+@(ind)msg.@('union.' if msg_union else '')@(field.name)_len = (uint@(c_int_type_bitlen(array_len_field_bitlen(field.type)))_t)(((transfer.payload_len*8)-bit_ofs)/@(field.type.value_type.bitlen));
 @{indent -= 1}@{ind = '    '*indent}@
 @[              end if]@
 @(ind)}

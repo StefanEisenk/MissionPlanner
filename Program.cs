@@ -63,8 +63,8 @@ namespace MissionPlanner
             try
             {
 
-                UAVCAN.UAVCAN.test();
-                
+                //UAVCAN.UAVCAN.test();
+
                 UAVCAN.UAVCAN can = new UAVCAN.UAVCAN();
 
                 ICommsSerial port = new SerialPort() {NewLine = "\r"};
@@ -81,7 +81,7 @@ namespace MissionPlanner
 
                 can.StartSLCAN(port.BaseStream);
 
-                can.update(@"C:\Users\michael\Desktop\Hex\Here2\build\com.hex.here+_2.0\Here2-crc.bin");
+                can.update(@"C:\Users\mich1\Google Drive\Here2-crc.bin");
             } catch { }
             
 
