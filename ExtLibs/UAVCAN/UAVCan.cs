@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -105,10 +106,10 @@ namespace UAVCAN
             Task.Run(() =>
             {
                 while (sr.CanRead)
-                {
-                    var line = ReadLine(stream);
+                {                   
                     try
                     {
+                        var line = ReadLine(stream);
                         ReadMessage(line);
                     }
                     catch
@@ -122,57 +123,88 @@ namespace UAVCAN
             {
                 while (stream.CanWrite)
                 {
-                    if (NodeStatus)
+                    try
                     {
-                        var slcan = PackageMessage(SourceNode, 20, transferID++,
-                            new uavcan.uavcan_protocol_NodeStatus()
-                            { health = (byte)uavcan.UAVCAN_PROTOCOL_NODESTATUS_HEALTH_OK, mode = (byte)uavcan.UAVCAN_PROTOCOL_NODESTATUS_MODE_OPERATIONAL, sub_mode = 0, uptime_sec = (uint)(DateTime.Now - uptime).TotalSeconds, vendor_specific_status_code = 0 });
+                        if (NodeStatus)
+                        {
+                            var slcan = PackageMessage(SourceNode, 20, transferID++,
+                                new uavcan.uavcan_protocol_NodeStatus()
+                                { health = (byte)uavcan.UAVCAN_PROTOCOL_NODESTATUS_HEALTH_OK, mode = (byte)uavcan.UAVCAN_PROTOCOL_NODESTATUS_MODE_OPERATIONAL, sub_mode = 0, uptime_sec = (uint)(DateTime.Now - uptime).TotalSeconds, vendor_specific_status_code = 0 });
 
-                        lock (sr_lock)
-                            WriteToStream(slcan);
+                            lock (sr_lock)
+                                WriteToStream(slcan);
+                        }
+                    }
+                    catch
+                    {
                     }
                     Thread.Sleep(1000);
+
                 }
             });
+
+            // build nodelist
+            MessageReceived += (frame, msg, transferID) =>
+            {
+                if (frame.IsServiceMsg && frame.SvcDestinationNode != SourceNode)
+                    return;
+
+                if (msg.GetType() == typeof(uavcan.uavcan_protocol_NodeStatus))
+                {
+                    if (!nodeList.ContainsKey(frame.SourceNode))
+                    {
+                        nodeList.Add(frame.SourceNode, msg as uavcan.uavcan_protocol_NodeStatus);
+                        NodeAdded?.Invoke(frame.SourceNode);
+                    }
+                }
+                else if (msg.GetType() == typeof(uavcan.uavcan_protocol_GetNodeInfo_req))
+                {
+                    var gnires = new uavcan.uavcan_protocol_GetNodeInfo_res();
+                    gnires.software_version.major = (byte)Assembly.GetExecutingAssembly().GetName().Version.Major;
+                    gnires.software_version.minor = (byte)Assembly.GetExecutingAssembly().GetName().Version.Minor;
+                    gnires.hardware_version.major = 0;
+                    gnires.hardware_version.unique_id = ASCIIEncoding.ASCII.GetBytes("MissionPlanner\x0\x0\x0\x0\x0\x0");
+                    gnires.name = ASCIIEncoding.ASCII.GetBytes("org.missionplanner");
+                    gnires.name_len = (byte)gnires.name.Length;
+                    gnires.status = new uavcan.uavcan_protocol_NodeStatus()
+                    { health = (byte)uavcan.UAVCAN_PROTOCOL_NODESTATUS_HEALTH_OK, mode = (byte)uavcan.UAVCAN_PROTOCOL_NODESTATUS_MODE_OPERATIONAL, sub_mode = 0, uptime_sec = (uint)(DateTime.Now - uptime).TotalSeconds, vendor_specific_status_code = 0 };
+
+                    var slcan = PackageMessage(frame.SourceNode, frame.Priority, transferID, gnires);
+                    lock (sr_lock)
+                        WriteToStream(slcan);
+                }
+            };
         }
 
-        public void update(string firmware_name)
+        Dictionary<string, string> fileServerList = new Dictionary<string, string>();
+
+        public void ServeFile(string filetoserve)
         {
-            var firmware_namebytes = ASCIIEncoding.ASCII.GetBytes(Path.GetFileName(firmware_name.ToLower()));
+            fileServerList[Path.GetFileName(filetoserve.ToLower())] = filetoserve;
+        }
 
-            List<int> nodeList = new List<int>();
-
-            List<byte> dynamicBytes = new List<byte>();
-
-            using (var file = File.OpenRead(firmware_name))
+        public void SetupFileServer()
+        {
+            MessageReceived += (frame, msg, transferID) =>
             {
-                MessageReceived += (frame, msg, transferID) =>
+                if (frame.IsServiceMsg && frame.SvcDestinationNode != SourceNode)
+                    return;
+
+                if (msg.GetType() == typeof(uavcan.uavcan_protocol_file_Read_req))
                 {
-                    if (frame.IsServiceMsg && frame.SvcDestinationNode != SourceNode)
-                        return;
+                    var frreq = msg as uavcan.uavcan_protocol_file_Read_req;
 
-                    if (msg.GetType() == typeof(uavcan.uavcan_protocol_file_BeginFirmwareUpdate_res))
-                    {
-                        var bfures = msg as uavcan.uavcan_protocol_file_BeginFirmwareUpdate_res;
-                        if (bfures.error != 0)
-                            throw new Exception("Begin Firmware Update returned an error");
+                    var requestedfile = ASCIIEncoding.ASCII.GetString(frreq.path.path).TrimEnd('\0');
 
-                        //NodeStatus = false;
-                    }
-                    else if (msg.GetType() == typeof(uavcan.uavcan_protocol_NodeStatus))
+                    var firmware = fileServerList.Where(a => a.Key == requestedfile);
+
+                    if (firmware.Count() == 0)
+                        throw new FileNotFoundException("File read request for file we are not serving " +
+                                  ASCIIEncoding.ASCII.GetString(frreq.path.path).TrimEnd('\0'));
+
+                    using (var file = File.OpenRead(firmware.First().Value))
                     {
-                        if (!nodeList.Contains(frame.SourceNode))
-                            nodeList.Add(frame.SourceNode);
-                    }
-                    else if (msg.GetType() == typeof(uavcan.uavcan_protocol_file_Read_req))
-                    {
-                        var frreq = msg as uavcan.uavcan_protocol_file_Read_req;
-                        if (ASCIIEncoding.ASCII.GetString(frreq.path.path).TrimEnd('\0') !=
-                            ASCIIEncoding.ASCII.GetString(firmware_namebytes))
-                            throw new Exception("File read request for file we are not serving " +
-                                                ASCIIEncoding.ASCII.GetString(frreq.path.path).TrimEnd('\0') + " vs " +
-                                                ASCIIEncoding.ASCII.GetString(firmware_namebytes));
-                        Console.WriteLine("file_Read: {0} at {1}", ASCIIEncoding.ASCII.GetString(frreq.path.path).TrimEnd('\0'), frreq.offset);
+                        Console.WriteLine("file_Read: {0} at {1}", requestedfile, frreq.offset);
                         file.Seek((long)frreq.offset, SeekOrigin.Begin);
                         var buffer = new byte[256];
                         var read = file.Read(buffer, 0, 256);
@@ -191,122 +223,223 @@ namespace UAVCAN
                             WriteToStream(slcan);
                         }
                     }
-                    else if (msg.GetType() == typeof(uavcan.uavcan_protocol_GetNodeInfo_req))
-                    {
-                        var gnires = new uavcan.uavcan_protocol_GetNodeInfo_res();
-                        gnires.software_version.major = 1;
-                        gnires.hardware_version.major = 1;
-                        gnires.name = ASCIIEncoding.ASCII.GetBytes("org.missionplanner");
-                        gnires.name_len = (byte)gnires.name.Length;
-                        gnires.status = new uavcan.uavcan_protocol_NodeStatus()
-                        { health = (byte)uavcan.UAVCAN_PROTOCOL_NODESTATUS_HEALTH_OK, mode = (byte)uavcan.UAVCAN_PROTOCOL_NODESTATUS_MODE_OPERATIONAL, sub_mode = 0, uptime_sec = (uint)(DateTime.Now - uptime).TotalSeconds, vendor_specific_status_code = 0 };
+                }
+            };
+        }
 
-                        var slcan = PackageMessage(frame.SourceNode, frame.Priority, transferID, gnires);
+        Dictionary<int, uavcan.uavcan_protocol_NodeStatus> nodeList = new Dictionary<int, uavcan.uavcan_protocol_NodeStatus>();
+
+        List<byte> dynamicBytes = new List<byte>();
+
+        public void SetupDynamicNodeAllocator()
+        {
+            MessageReceived += (frame, msg, transferID) =>
+            {
+                if (frame.IsServiceMsg && frame.SvcDestinationNode != SourceNode)
+                    return;
+
+                if (msg.GetType() == typeof(uavcan.uavcan_protocol_dynamic_node_id_Allocation))
+                {
+                    var allocation = msg as uavcan.uavcan_protocol_dynamic_node_id_Allocation;
+
+                    if (allocation.first_part_of_unique_id)
+                    {
+                        // first part of id
+                        allocation.first_part_of_unique_id = false;
+                        dynamicBytes.Clear();
+                        dynamicBytes.AddRange(allocation.unique_id.Take(allocation.unique_id_len));
+
+                        var slcan = PackageMessage(SourceNode, frame.Priority, transferID, allocation);
                         lock (sr_lock)
                             WriteToStream(slcan);
-                    }
-                    else if (msg.GetType() == typeof(uavcan.uavcan_protocol_GetNodeInfo_res))
-                    {
-                        var gnires = msg as uavcan.uavcan_protocol_GetNodeInfo_res;
-                        Console.WriteLine("GetNodeInfo: seen '{0}'", ASCIIEncoding.ASCII.GetString(gnires.name));
-                        if (gnires.status.mode != uavcan.UAVCAN_PROTOCOL_NODESTATUS_MODE_SOFTWARE_UPDATE)
-                        {
-                            var req_msg =
-                                new uavcan.uavcan_protocol_file_BeginFirmwareUpdate_req()
-                                {
-                                    image_file_remote_path = new uavcan.uavcan_protocol_file_Path()
-                                    { path = firmware_namebytes },
-                                    source_node_id = SourceNode
-                                };
-                            req_msg.image_file_remote_path.path_len = (byte)firmware_namebytes.Length;
-
-                            var slcan = PackageMessage(frame.SourceNode, frame.Priority, transferID, req_msg);
-                            lock (sr_lock)
-                                WriteToStream(slcan);
-                        }
-                    }
-                    else if (msg.GetType() == typeof(uavcan.uavcan_protocol_dynamic_node_id_Allocation))
-                    {
-                        var allocation = msg as uavcan.uavcan_protocol_dynamic_node_id_Allocation;
-
-                        //if (allocation.first_part_of_unique_id && dynamicBytes.Count() != 0)
-                        //  return;
-
-                        if (allocation.first_part_of_unique_id)
-                        {
-                            // first part of id
-                            allocation.first_part_of_unique_id = false;
-                            dynamicBytes.Clear();
-                            dynamicBytes.AddRange(allocation.unique_id.Take(allocation.unique_id_len));
-
-                            var slcan = PackageMessage(SourceNode, frame.Priority, transferID, allocation);
-                            lock (sr_lock)
-                                WriteToStream(slcan);
-                        }
-                        else
-                        {
-                            dynamicBytes.AddRange(allocation.unique_id.Take(allocation.unique_id_len));
-
-                            allocation.unique_id = dynamicBytes.ToArray();
-
-                            allocation.unique_id_len = (byte)allocation.unique_id.Length;
-
-                            if (allocation.unique_id_len >= 16)
-                            {
-                                for (int a = 125; a >= 1; a--)
-                                {
-                                    if (!nodeList.Contains(a))
-                                    {
-                                        allocation.node_id = (byte)a;
-                                        Console.WriteLine("Allocate " + a);
-                                        break;
-                                    }
-                                }
-                                dynamicBytes.Clear();
-                            }
-                            var slcan = PackageMessage(SourceNode, frame.Priority, transferID, allocation);
-                            lock (sr_lock)
-                                WriteToStream(slcan);
-
-                        }
-                    }
-                    else if (msg.GetType() == typeof(uavcan.uavcan_protocol_enumeration_Begin_req))
-                    {
-                        var enum1 = msg as uavcan.uavcan_protocol_enumeration_Begin_req;
-
                     }
                     else
                     {
+                        dynamicBytes.AddRange(allocation.unique_id.Take(allocation.unique_id_len));
 
-                    }
-                };
+                        allocation.unique_id = dynamicBytes.ToArray();
 
-                var statetracking = new statetracking();
+                        allocation.unique_id_len = (byte)allocation.unique_id.Length;
 
-                // wait to build nodelist
-                Thread.Sleep(5000);
-
-
-
-                // start readloop
-                //uavcan.uavcan_protocol_file_Read_req
-                
-                while (true)
-                {
-                    foreach (var i in nodeList)
-                    {
-                        // get node info
-                        uavcan.uavcan_protocol_GetNodeInfo_req gnireq = new uavcan.uavcan_protocol_GetNodeInfo_req() { };
-                        gnireq.encode(chunk_cb, statetracking);
-
-                        var slcan = PackageMessage((byte)i, 30, transferID++, gnireq);
+                        if (allocation.unique_id_len >= 16)
+                        {
+                            for (int a = 125; a >= 1; a--)
+                            {
+                                if (!nodeList.ContainsKey(a))
+                                {
+                                    allocation.node_id = (byte)a;
+                                    Console.WriteLine("Allocate " + a);
+                                    break;
+                                }
+                            }
+                            dynamicBytes.Clear();
+                        }
+                        var slcan = PackageMessage(SourceNode, frame.Priority, transferID, allocation);
                         lock (sr_lock)
                             WriteToStream(slcan);
-                    }
 
-                    Thread.Sleep(100000);
+                    }
+                }
+            };
+        }
+
+        public async void Update(string devicename, double hwversion, string firmware_name)
+        {
+            ServeFile(firmware_name);
+
+            var firmware_namebytes = ASCIIEncoding.ASCII.GetBytes(Path.GetFileName(firmware_name.ToLower()));
+            ulong firmware_crc = ulong.MaxValue;
+
+            MessageReceived += (frame, msg, transferID) =>
+            {
+                if (frame.IsServiceMsg && frame.SvcDestinationNode != SourceNode)
+                    return;
+
+                if (msg.GetType() == typeof(uavcan.uavcan_protocol_file_BeginFirmwareUpdate_res))
+                {
+                    var bfures = msg as uavcan.uavcan_protocol_file_BeginFirmwareUpdate_res;
+                    if (bfures.error != 0)
+                        throw new Exception("Begin Firmware Update returned an error");
+                }
+                else if (msg.GetType() == typeof(uavcan.uavcan_protocol_GetNodeInfo_res))
+                {
+                    var gnires = msg as uavcan.uavcan_protocol_GetNodeInfo_res;
+                    Console.WriteLine("GetNodeInfo: seen '{0}' from {1}", ASCIIEncoding.ASCII.GetString(gnires.name).TrimEnd('\0'), frame.SourceNode);
+                    if (devicename == ASCIIEncoding.ASCII.GetString(gnires.name).TrimEnd('\0'))
+                    {
+                        if (firmware_crc != gnires.software_version.image_crc)
+                        {
+                            if (hwversion == double.Parse(gnires.hardware_version.major + "." + gnires.hardware_version.minor, CultureInfo.InvariantCulture))
+                            {
+                                if (gnires.status.mode != uavcan.UAVCAN_PROTOCOL_NODESTATUS_MODE_SOFTWARE_UPDATE)
+                                {
+                                    var req_msg =
+                                        new uavcan.uavcan_protocol_file_BeginFirmwareUpdate_req()
+                                        {
+                                            image_file_remote_path = new uavcan.uavcan_protocol_file_Path()
+                                            { path = firmware_namebytes },
+                                            source_node_id = SourceNode
+                                        };
+                                    req_msg.image_file_remote_path.path_len = (byte)firmware_namebytes.Length;
+
+                                    var slcan = PackageMessage(frame.SourceNode, frame.Priority, transferID, req_msg);
+                                    lock (sr_lock)
+                                        WriteToStream(slcan);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("{0} - No need to upload, crc matchs", frame.SourceNode);
+                        }
+                    }
+                }
+            };
+
+            // getfile crc
+            using (var stream = File.OpenRead(fileServerList[Path.GetFileName(firmware_name.ToLower())]))
+            {
+                string app_descriptor_fmt = "<8cQI";
+                var SHARED_APP_DESCRIPTOR_SIGNATURES = new byte[][] {
+                    new byte[] { 0xd7, 0xe4, 0xf7, 0xba, 0xd0, 0x0f, 0x9b, 0xee },
+                    new byte[] { 0x40, 0xa2, 0xe4, 0xf1, 0x64, 0x68, 0x91, 0x06 } };
+
+                var app_descriptor_len = 8 * 1 + 8 + 4;
+
+                var location = GetPatternPositions(stream, SHARED_APP_DESCRIPTOR_SIGNATURES[0]);
+                stream.Seek(0, SeekOrigin.Begin);
+                var location2 = GetPatternPositions(stream, SHARED_APP_DESCRIPTOR_SIGNATURES[1]);
+
+                if(location.Count > 0 || location2.Count > 0)
+                {
+                    var offset = location.Count > 0 ? location[0] : location2[0];
+                    stream.Seek(offset, SeekOrigin.Begin);
+                    byte[] buf = new byte[app_descriptor_len];
+                    stream.Read(buf, 0, app_descriptor_len);
+                    firmware_crc = BitConverter.ToUInt64(buf, 8);
                 }
             }
+
+            var statetracking = new statetracking();
+
+            NodeAdded += (NodeID) =>
+            {
+                // get node info
+                uavcan.uavcan_protocol_GetNodeInfo_req gnireq = new uavcan.uavcan_protocol_GetNodeInfo_req() { };
+                gnireq.encode(chunk_cb, statetracking);
+
+                var slcan = PackageMessage(NodeID, 30, transferID++, gnireq);
+                lock (sr_lock)
+                    WriteToStream(slcan);
+            };
+
+            foreach (var i in nodeList.Keys.ToArray())
+            {
+                // get node info
+                uavcan.uavcan_protocol_GetNodeInfo_req gnireq = new uavcan.uavcan_protocol_GetNodeInfo_req() { };
+                gnireq.encode(chunk_cb, statetracking);
+
+                var slcan = PackageMessage((byte)i, 30, transferID++, gnireq);
+                lock (sr_lock)
+                    WriteToStream(slcan);
+            }
+
+            int b = 0;
+            while (true)
+            {
+                await Task.Delay(1000);
+
+                if (nodeList.Values.Any(a => a.mode == uavcan.UAVCAN_PROTOCOL_NODESTATUS_MODE_SOFTWARE_UPDATE))
+                {
+                   
+                }
+                else
+                {
+                    b++;
+                    if(b > 100)
+                        break;
+                }
+            }
+        }
+
+        List<long> GetPatternPositions(Stream stream, byte[] pattern)
+        {
+            List<long> searchResults = new List<long>(); //The results as offsets within the file
+            int patternPosition = 0; //Track of how much of the array has been matched
+            long filePosition = 0;
+            long bufferSize = Math.Min(stream.Length, 100_000);
+
+            byte[] buffer = new byte[bufferSize];
+            int readCount = 0;
+
+            while ((readCount = stream.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                for (int i = 0; i < readCount; i++)
+                {
+                    byte currentByte = buffer[i];
+
+                    if (currentByte == pattern[0])
+                        patternPosition = 0;
+
+                    if (currentByte == pattern[patternPosition])
+                    {
+                        patternPosition++;
+                        if (patternPosition == pattern.Length)
+                        {
+                            searchResults.Add(filePosition + 1 - pattern.Length);
+                            patternPosition = 0;
+                        }
+                    }
+                    else
+                    {
+                        patternPosition = 0;
+                    }
+                    filePosition++;
+                }
+            }
+
+            return searchResults;
+
         }
 
         private void WriteToStream(string slcan)
@@ -409,6 +542,9 @@ namespace UAVCAN
 
         public byte SourceNode { get; set; } = 127;
         public bool NodeStatus { get; set; } = true;
+
+        public delegate void NodeAddedArgs(byte NodeID);
+        public event NodeAddedArgs NodeAdded;
 
         private byte transferID = 0;
 

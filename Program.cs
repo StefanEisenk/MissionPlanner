@@ -67,11 +67,13 @@ namespace MissionPlanner
 
                 UAVCAN.UAVCAN can = new UAVCAN.UAVCAN();
 
-                ICommsSerial port = new SerialPort() {NewLine = "\r"};
+                ICommsSerial port = new SerialPort();
+
                 port.PortName = "com8";
                 port.BaudRate = 115200;
                 port.ReadBufferSize = 1024 * 20;
                 port.WriteBufferSize = 1024 * 20;
+                port.ReadTimeout = 1000;
                 port.Open();
 
                 //clear buffer
@@ -81,8 +83,19 @@ namespace MissionPlanner
 
                 can.StartSLCAN(port.BaseStream);
 
-                can.update(@"C:\Users\mich1\Google Drive\Here2-crc.bin");
-            } catch { }
+                can.SetupFileServer();
+
+                can.SetupDynamicNodeAllocator();
+
+                can.Update("com.hex.here", 1.0, @"C:\Users\mich1\Google Drive\Here2-crc.bin");
+
+                can.Update("com.hex.here", 2.0, @"C:\Users\mich1\Downloads\Here2_com.hex.here_2.1-crc (2).bin");
+
+                can.Update("com.hex.here", 2.1, @"C:\Users\mich1\Downloads\Here2_com.hex.here_2.1-crc (2).bin");
+
+                can.Update("com.hex.flow_2.0", 2.0, @"C:\Users\mich1\Desktop\Hex\Flow\build\com.hex.flow_2.0\Flow-crc.bin");
+            }
+            catch { }
             
 
             Start(args);
