@@ -4806,6 +4806,9 @@
     <Content Include="dataflashlog.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Drivers\Holybro.inf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Drivers\dpinst.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
