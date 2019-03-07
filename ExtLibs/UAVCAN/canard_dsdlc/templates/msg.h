@@ -63,7 +63,7 @@ public class @(msg_c_type): IUAVCANSerialize {
 @[      end if]@
 @[    end for]@
     };
-	public unions union;
+	public unions union = new unions();
 @[  else]@
 @[    for field in msg_fields]@
 @[      if field.type.category != field.type.CATEGORY_VOID]@

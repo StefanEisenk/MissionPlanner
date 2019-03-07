@@ -176,6 +176,62 @@ namespace UAVCAN
             };
         }
 
+        public void RequestFile(byte nodeID, string filename)
+        {
+            bool reading = true;
+            int gotbytes = 0;
+
+            var req = new uavcan.uavcan_protocol_file_Read_req()
+            {
+                offset = 0,
+                path = new uavcan.uavcan_protocol_file_Path()
+                {
+                    path = ASCIIEncoding.ASCII.GetBytes(filename),
+                    path_len = (byte)filename.Length
+                }
+            };
+
+            MessageReceived += (frame, msg, transferID) =>
+            {
+                if (frame.IsServiceMsg && frame.SvcDestinationNode != SourceNode)
+                    return;
+
+                if (msg.GetType() == typeof(uavcan.uavcan_protocol_file_Read_res))
+                {
+                    var readres = msg as uavcan.uavcan_protocol_file_Read_res;
+
+                    //readres.data
+
+                    req.offset += readres.data_len;
+
+                    var slcan2 = PackageMessage(nodeID, 20, transferID, req);
+                    lock (sr_lock)
+                        WriteToStream(slcan2);
+                }
+                else if (msg.GetType() == typeof(uavcan.uavcan_protocol_debug_LogMessage))
+                {
+                    var debug = msg as uavcan.uavcan_protocol_debug_LogMessage;
+
+                    Console.WriteLine(ASCIIEncoding.ASCII.GetString(debug.text, 0, debug.text_len));
+                }
+            };
+
+
+
+            var slcan = PackageMessage(nodeID, 20, transferID, req);
+            lock (sr_lock)
+                WriteToStream(slcan);
+
+            while (reading)
+            {
+                Thread.Sleep(3000);
+
+                if(gotbytes == 0)
+                    lock (sr_lock)
+                        WriteToStream(slcan);
+            }
+        }
+
         Dictionary<string, string> fileServerList = new Dictionary<string, string>();
 
         public void ServeFile(string filetoserve)

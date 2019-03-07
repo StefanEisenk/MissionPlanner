@@ -78,7 +78,7 @@ public class uavcan_protocol_param_Value: IUAVCANSerialize {
 
 
     };
-	public unions union;
+	public unions union = new unions();
 
 
 public void encode(uavcan_serializer_chunk_cb_ptr_t chunk_cb, object ctx)

@@ -1,97 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Sockets;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
+
 using Xamarin.Forms;
-using System;
-using System.Net;
-using System.Net.Sockets;
-using System.Reflection;
-using System.Threading;
-using log4net;
-using MissionPlanner;
+using Xamarin.Forms.Xaml;
 
 namespace Xamarin
 {
-    public partial class MainPage : ContentPage
+    [XamlCompilation(XamlCompilationOptions.Compile)]
+    public partial class MainPage : MasterDetailPage
     {
-        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-
-        private static UdpClient client;
-
-        private static Timer timer;
-
-        public IServiceProvider Services { get; set; }
-
         public MainPage()
         {
             InitializeComponent();
-
-            Task.Run(async () =>
-            {
-                try
-                {
-                    client = new UdpClient(14550, AddressFamily.InterNetwork);
-                    client.BeginReceive(clientdata, client);
-                }
-                catch (Exception ex)
-                {
-                    log.Error(ex);
-                }
-            });
+            MasterPage.ListView.ItemSelected += ListView_ItemSelected;
         }
 
-        private void clientdata(IAsyncResult ar)
+        private void ListView_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            timer = null;
-            var client = ((UdpClient) ar.AsyncState);
-
-            if (client == null || client.Client == null)
+            var item = e.SelectedItem as MasterDetailPage1MenuItem;
+            if (item == null)
                 return;
-            try
-            {
-                var port = ((IPEndPoint) client.Client.LocalEndPoint).Port;
 
-                //if (client != null)
-                //client.Close();
+            var page = (Page)Activator.CreateInstance(item.TargetType);
+            page.Title = item.Title;
 
-                var udpclient = new MissionPlanner.Comms.UdpSerial(client);
+            Detail = new NavigationPage(page);
+            IsPresented = false;
 
-
-                var mav = new MAVLinkInterface();
-                mav.BaseStream = udpclient;
-                //MainV2.instance.doConnect(mav, "preset", port.ToString());
-                //mav.getHeartBeat();
-
-                Device.BeginInvokeOnMainThread(() =>
-                {
-                    Button1.Text = "here";
-                    Button2.Text = "Now";
-                });
-            }
-            catch (Exception ex)
-            {
-                log.Error(ex);
-            }
-        }
-
-        private void Button1_Pressed(object sender, EventArgs e)
-        {
-
-        }
-
-        private void Button2_Pressed(object sender, EventArgs e)
-        {
-
-        }
-
-        private void Button3_Pressed(object sender, EventArgs e)
-        {
-
+            MasterPage.ListView.SelectedItem = null;
         }
     }
 }

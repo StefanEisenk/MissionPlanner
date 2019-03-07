@@ -69,7 +69,7 @@ namespace MissionPlanner
 
                 ICommsSerial port = new SerialPort();
 
-                port.PortName = "com8";
+                port.PortName = "com888";
                 port.BaudRate = 115200;
                 port.ReadBufferSize = 1024 * 20;
                 port.WriteBufferSize = 1024 * 20;
@@ -87,6 +87,10 @@ namespace MissionPlanner
 
                 can.SetupDynamicNodeAllocator();
 
+                //can.RequestFile(115, "raw_image");
+
+                /*
+
                 can.Update("com.hex.here", 1.0, @"C:\Users\mich1\Google Drive\Here2-crc.bin");
 
                 can.Update("com.hex.here", 2.0, @"C:\Users\mich1\Downloads\Here2_com.hex.here_2.1-crc (2).bin");
@@ -94,6 +98,7 @@ namespace MissionPlanner
                 can.Update("com.hex.here", 2.1, @"C:\Users\mich1\Downloads\Here2_com.hex.here_2.1-crc (2).bin");
 
                 can.Update("com.hex.flow_2.0", 2.0, @"C:\Users\mich1\Desktop\Hex\Flow\build\com.hex.flow_2.0\Flow-crc.bin");
+                */
             }
             catch { }
             
