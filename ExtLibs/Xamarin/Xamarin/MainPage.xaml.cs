@@ -25,6 +25,8 @@ namespace Xamarin
 
         private static Timer timer;
 
+        public IServiceProvider Services { get; set; }
+
         public MainPage()
         {
             InitializeComponent();
@@ -75,6 +77,21 @@ namespace Xamarin
             {
                 log.Error(ex);
             }
+        }
+
+        private void Button1_Pressed(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Button2_Pressed(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Button3_Pressed(object sender, EventArgs e)
+        {
+
         }
     }
 }
