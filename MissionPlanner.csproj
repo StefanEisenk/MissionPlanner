@@ -331,6 +331,12 @@
     <Compile Include="FollowMe.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="GCSViews\ConfigurationView\ConfigHWIDs.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="GCSViews\ConfigurationView\ConfigHWIDs.Designer.cs">
+      <DependentUpon>ConfigHWIDs.cs</DependentUpon>
+    </Compile>
     <Compile Include="Joystick\JoystickAxis.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -456,6 +462,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\ProximityControl.resx">
       <DependentUpon>ProximityControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GCSViews\ConfigurationView\ConfigHWIDs.resx">
+      <DependentUpon>ConfigHWIDs.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Joystick\JoystickAxis.resx" />
     <EmbeddedResource Include="Log\LogStrings.resx">
